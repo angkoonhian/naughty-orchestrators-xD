@@ -1,0 +1,13 @@
+name: stripe-payments
+description: Critics for systems integrating Stripe payments
+triggers:
+  all_of:
+    - dep_present: stripe
+  any_of:
+    - dep_present: stripe
+    - code_pattern: "webhook"
+    - code_pattern: "whsec_"
+critics:
+  - webhook-replay-critic
+  - idempotency-key-critic
+  - pii-exposure-critic

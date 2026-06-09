@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orchestrate Skill — Cheatsheet</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --panel: #161b22;
+    --panel-2: #1c2330;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --accent-2: #a371f7;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --low: #3fb950;
+    --medium: #d29922;
+    --high: #f0883e;
+    --critical: #f85149;
+    --blocker: #f85149;
+    --important: #d29922;
+    --minor: #58a6ff;
+    --pass: #3fb950;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #ffffff;
+      --panel: #f6f8fa;
+      --panel-2: #ffffff;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --text-dim: #59636e;
+      --accent: #0969da;
+      --accent-2: #8250df;
+      --low: #1a7f37;
+      --medium: #9a6700;
+      --high: #bf3989;
+      --critical: #cf222e;
+      --blocker: #cf222e;
+      --important: #9a6700;
+      --minor: #0969da;
+      --pass: #1a7f37;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--text); }
+  body {
+    margin: 0;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static !important; max-height: none !important; }
+  }
+  aside {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  aside h1 {
+    font-size: 16px;
+    margin: 0 0 4px;
+    color: var(--accent);
+  }
+  aside .subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+  }
+  aside nav { font-size: 13px; }
+  aside nav a {
+    display: block;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 4px 0;
+    border-left: 2px solid transparent;
+    padding-left: 10px;
+    margin-left: -10px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  aside nav a:hover {
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+  aside nav .group {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    margin: 16px 0 4px;
+    font-weight: 600;
+  }
+  main {
+    padding: 32px 48px 64px;
+    max-width: 1100px;
+  }
+  @media (max-width: 980px) {
+    main { padding: 24px 16px 48px; }
+  }
+  h2 {
+    font-size: 20px;
+    margin: 48px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+    scroll-margin-top: 16px;
+  }
+  h2:first-of-type { margin-top: 0; }
+  h3 {
+    font-size: 15px;
+    margin: 24px 0 8px;
+    color: var(--text);
+  }
+  p { margin: 8px 0; }
+  code, .mono { font-family: var(--mono); font-size: 0.92em; }
+  code {
+    background: var(--panel);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  pre code { background: none; border: none; padding: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: var(--panel);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+  }
+  tr:last-child td { border-bottom: none; }
+  td code { white-space: nowrap; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .header-card {
+    background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .header-card .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .header-card .stats b { color: var(--text); font-size: 14px; }
+  .badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+  }
+  .b-low { background: rgba(63,185,80,0.15); color: var(--low); border-color: var(--low); }
+  .b-med { background: rgba(210,153,34,0.15); color: var(--medium); border-color: var(--medium); }
+  .b-high { background: rgba(240,136,62,0.15); color: var(--high); border-color: var(--high); }
+  .b-crit { background: rgba(248,81,73,0.15); color: var(--critical); border-color: var(--critical); }
+  .b-block { background: rgba(248,81,73,0.15); color: var(--blocker); border-color: var(--blocker); }
+  .b-imp { background: rgba(210,153,34,0.15); color: var(--important); border-color: var(--important); }
+  .b-min { background: rgba(88,166,255,0.15); color: var(--minor); border-color: var(--minor); }
+  .b-pass { background: rgba(63,185,80,0.15); color: var(--pass); border-color: var(--pass); }
+  .b-skip { background: var(--panel-2); color: var(--text-dim); border-color: var(--border); }
+  .b-block-action {
+    background: rgba(248,81,73,0.15);
+    color: var(--blocker);
+    border-color: var(--blocker);
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  @media (max-width: 800px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+  .mini-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .mini-card .name {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 13px;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .mini-card .desc { color: var(--text-dim); font-size: 12px; }
+  .flow {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+  .flow .step { color: var(--accent); font-weight: 600; }
+  .flow .gate { color: var(--accent-2); font-weight: 600; }
+  .callout {
+    background: rgba(88,166,255,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .callout.warn {
+    background: rgba(240,136,62,0.08);
+    border-left-color: var(--high);
+  }
+  .callout.crit {
+    background: rgba(248,81,73,0.08);
+    border-left-color: var(--critical);
+  }
+  ul, ol { margin: 8px 0; padding-left: 24px; }
+  ul li, ol li { margin: 4px 0; }
+  .toc-anchor {
+    color: var(--text-dim);
+    text-decoration: none;
+    margin-left: 8px;
+    font-weight: normal;
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-size: 14px;
+  }
+  h2:hover .toc-anchor { opacity: 1; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .legend .item { display: flex; align-items: center; gap: 6px; color: var(--text-dim); }
+  @media print {
+    aside { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    main { padding: 0; max-width: none; }
+    body { background: white; color: black; }
+    h2 { page-break-after: avoid; }
+    table, pre, .card, .flow, .mini-card { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside>
+  <h1>orchestrate</h1>
+  <div class="subtitle">skill cheatsheet · 2026-05-30</div>
+  <nav>
+    <div class="group">Concepts</div>
+    <a href="#quick">Quick reference</a>
+    <a href="#modes">Operating modes</a>
+    <a href="#loop">Dispatch loop</a>
+    <a href="#impact">Impact tiers</a>
+    <a href="#gates">Gate behavior</a>
+    <a href="#hierarchy">4-tier hierarchy</a>
+    <a href="#adaptive">Adaptive Tier 2</a>
+
+    <div class="group">Devil's Advocate</div>
+    <a href="#dalead">da-lead router</a>
+    <a href="#core-critics">7 core critics</a>
+    <a href="#packs">11 platform-packs</a>
+
+    <div class="group">Validation</div>
+    <a href="#pre-impl">Pre-impl gate</a>
+    <a href="#post-impl">Post-impl gate</a>
+    <a href="#loop-mech">Feedback loop</a>
+    <a href="#routing">Smart routing</a>
+    <a href="#escalation">Escalation</a>
+
+    <div class="group">Agents</div>
+    <a href="#cross-cutting">Cross-cutting</a>
+    <a href="#task-agents">Task agents</a>
+    <a href="#personas">Personas</a>
+    <a href="#skill-inject">Skill injection</a>
+
+    <div class="group">Bootstrap</div>
+    <a href="#scan">Scan signals</a>
+    <a href="#migration">Migration</a>
+    <a href="#extension">Extension contract</a>
+    <a href="#state">Project state</a>
+    <a href="#commands">Commands</a>
+
+    <div class="group">Reference</div>
+    <a href="#files">File structure</a>
+    <a href="#patterns">Quick patterns</a>
+  </nav>
+</aside>
+
+<main>
+
+<div class="header-card">
+  <h1 style="margin:0;font-size:24px;color:var(--accent)">orchestrate</h1>
+  <div style="color:var(--text-dim);margin-top:4px">Bootstrap and operate a multi-tier agent orchestration system in any codebase.</div>
+  <div class="stats">
+    <div><b>84</b> files in skill</div>
+    <div><b>4</b> tiers</div>
+    <div><b>7</b> universal DA critics</div>
+    <div><b>11</b> platform-packs</div>
+    <div><b>6</b> pre-impl validators</div>
+    <div><b>6</b> post-impl validators</div>
+    <div><b>5</b> Python scripts</div>
+    <div><b>38</b> passing tests</div>
+  </div>
+</div>
+
+<!-- ====================================== QUICK ====================================== -->
+<h2 id="quick">Quick reference <a href="#quick" class="toc-anchor">#</a></h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h3 style="margin-top:0">Trigger commands</h3>
+    <table>
+      <tr><td><code>/orchestrate</code></td><td>Auto-detect mode + run</td></tr>
+      <tr><td><code>/orchestrate --update</code></td><td>Re-scan + diff against config</td></tr>
+      <tr><td><code>/orchestrate --dry-run</code></td><td>Report only, no writes</td></tr>
+      <tr><td><code>/orchestrate --express</code></td><td>Install all inferences, no asks</td></tr>
+      <tr><td><code>/orchestrate --manual</code></td><td>Ask every option, skip inference</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Gate behavior by tier</h3>
+    <table>
+      <tr><th>Impact</th><th>DA</th><th>Pre</th><th>Post</th></tr>
+      <tr><td><span class="badge b-low">LOW</span></td><td><span class="badge b-skip">skip</span></td><td><span class="badge b-skip">skip</span></td><td><span class="badge b-skip">skip</span></td></tr>
+      <tr><td><span class="badge b-med">MEDIUM</span></td><td>advise</td><td>advise</td><td><span class="badge b-block-action">block</span></td></tr>
+      <tr><td><span class="badge b-high">HIGH</span></td><td><span class="badge b-block-action">block</span></td><td><span class="badge b-block-action">block</span></td><td><span class="badge b-block-action">block</span></td></tr>
+      <tr><td><span class="badge b-crit">CRIT</span></td><td>debate</td><td><span class="badge b-block-action">block</span></td><td><span class="badge b-block-action">block</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Retry policy:</strong> 3 retries per gate, per user message. Max 6 retry loops per request (3 pre + 3 post). Cycle detection aborts early when iteration N+1 has the same primary blocker as N.
+</div>
+
+<div class="legend">
+  <div class="item"><span class="badge b-low">LOW</span> skip gates</div>
+  <div class="item"><span class="badge b-med">MEDIUM</span> advise non-blocking</div>
+  <div class="item"><span class="badge b-high">HIGH</span> block</div>
+  <div class="item"><span class="badge b-crit">CRITICAL</span> block + debate</div>
+  <div class="item"><span class="badge b-block">BLOCKER</span> gate fails</div>
+  <div class="item"><span class="badge b-imp">IMPORTANT</span> conditional pass</div>
+  <div class="item"><span class="badge b-min">MINOR</span> note only</div>
+  <div class="item"><span class="badge b-pass">PASS</span> no findings</div>
+</div>
+
+<!-- ====================================== MODES ====================================== -->
+<h2 id="modes">Operating modes <a href="#modes" class="toc-anchor">#</a></h2>
+
+<table>
+  <tr><th>Detected state</th><th>Mode</th><th>Behavior</th></tr>
+  <tr>
+    <td>No <code>CLAUDE.md</code>, no <code>docs/agents/</code></td>
+    <td><strong>Fresh install</strong></td>
+    <td>Full scan → infer → ask → generate</td>
+  </tr>
+  <tr>
+    <td>Existing <code>CLAUDE.md</code>, no skill-managed structure</td>
+    <td><strong>Migrate</strong></td>
+    <td>Read existing, merge new patterns, preserve customizations, surface conflicts, <b>back up before any modification</b></td>
+  </tr>
+  <tr>
+    <td>Existing <code>.claude/orchestration.config.yaml</code></td>
+    <td><strong>Update</strong></td>
+    <td>Re-scan, diff against stored profile, report new detections only</td>
+  </tr>
+</table>
+
+<h3>Override flags</h3>
+<table>
+  <tr><th>Flag</th><th>Effect</th></tr>
+  <tr><td><code>--express</code></td><td>Install all inferences without asking confirmations</td></tr>
+  <tr><td><code>--manual</code></td><td>Ask user for every option, skip inference</td></tr>
+  <tr><td><code>--dry-run</code></td><td>Scan + infer + report what WOULD be installed; write nothing</td></tr>
+  <tr><td><code>--update</code></td><td>Force Update mode (re-scan + diff)</td></tr>
+</table>
+
+<!-- ====================================== LOOP ====================================== -->
+<h2 id="loop">The 8-step dispatch loop <a href="#loop" class="toc-anchor">#</a></h2>
+
+<div class="flow">
+<span class="step">1.</span> CLASSIFY         <span style="color:var(--text-dim)">single-repo / cross-repo / opinion / schema / UI / persona?</span>
+<span class="step">2.</span> ASSESS IMPACT    <span style="color:var(--text-dim)">LOW / MEDIUM / HIGH / CRITICAL  (with bump rule)</span>
+<span class="gate">3.</span> DA GATE          <span style="color:var(--text-dim)">da-lead + 7 universal critics + applicable platform-pack critics</span>
+<span class="step">4.</span> ARCHITECT        <span style="color:var(--text-dim)">(if cross-repo) produces a change manifest</span>
+<span class="gate">4.5</span> PRE-IMPL GATE   <span style="color:var(--text-dim)">6 universal spec validators + platform-pack spec validators</span>
+<span class="step">5.</span> ROUTE            <span style="color:var(--text-dim)">dispatch to Lead(s), parallel where independent</span>
+<span class="step">6.</span> EXECUTE          <span style="color:var(--text-dim)">Leads + sub-specialists implement code</span>
+<span class="gate">6.5</span> POST-IMPL GATE  <span style="color:var(--text-dim)">5 code validators + qa-delegator wrapping project QA</span>
+<span class="step">7.</span> SYNTHESIZE       <span style="color:var(--text-dim)">unify results, present to user with impact tier</span>
+</div>
+
+<div class="callout">
+  Tier 0 (Claude Code itself) <b>never writes code</b>. It classifies, routes, synthesizes. Implementation always happens at Tier 1+.
+</div>
+
+<!-- ====================================== IMPACT ====================================== -->
+<h2 id="impact">Impact classification rules <a href="#impact" class="toc-anchor">#</a></h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--low)"><span class="badge b-low">LOW</span> skip all gates</h3>
+    <ul>
+      <li>Bug fixes without interface/schema change</li>
+      <li>Typo / copy / translation</li>
+      <li>CSS / styling-only</li>
+      <li>Config (<code>.env</code>, <code>tsconfig</code>, lint config)</li>
+      <li>Patch/minor dep bumps</li>
+      <li>Logs, comments, docs</li>
+      <li>Lint warning fixes</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--medium)"><span class="badge b-med">MEDIUM</span> DA advisory, post-impl blocking</h3>
+    <ul>
+      <li>New features in single project</li>
+      <li>Refactoring</li>
+      <li>New dependency</li>
+      <li>New UI in existing app</li>
+      <li>New endpoints following existing patterns</li>
+      <li>Business-logic changes</li>
+      <li>Adding or modifying tests</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--high)"><span class="badge b-high">HIGH</span> all gates blocking</h3>
+    <ul>
+      <li>Cross-project changes (2+ projects)</li>
+      <li>DB schema changes</li>
+      <li>New API contracts</li>
+      <li>Auth / authz changes</li>
+      <li>Shared package changes</li>
+      <li>Removing / renaming endpoints</li>
+      <li>Deploy config changes</li>
+      <li>New data source</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--critical)"><span class="badge b-crit">CRITICAL</span> all gates + FOR/AGAINST debate</h3>
+    <ul>
+      <li>Architecture decisions</li>
+      <li>Technology migrations</li>
+      <li>New project creation</li>
+      <li>Auth model changes</li>
+      <li>New communication patterns (e.g., adding GraphQL)</li>
+      <li>Project merge / split</li>
+      <li>"Should we..." questions</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout warn">
+  <strong>Bump rule:</strong> changes touching security, authentication, or money → bump one tier higher.<br>
+  <strong>Ambiguity rule:</strong> default to MEDIUM when unclear.
+</div>
+
+<!-- ====================================== GATES ====================================== -->
+<h2 id="gates">Tier-scaled gate behavior <a href="#gates" class="toc-anchor">#</a></h2>
+
+<table>
+  <tr><th>Impact</th><th>DA gate</th><th>Pre-impl gate</th><th>Post-impl gate</th></tr>
+  <tr>
+    <td><span class="badge b-low">LOW</span></td>
+    <td>skipped</td>
+    <td>skipped</td>
+    <td>skipped</td>
+  </tr>
+  <tr>
+    <td><span class="badge b-med">MEDIUM</span></td>
+    <td>advisory (parallel, non-blocking)</td>
+    <td>advisory</td>
+    <td><span class="badge b-block-action">blocking</span></td>
+  </tr>
+  <tr>
+    <td><span class="badge b-high">HIGH</span></td>
+    <td><span class="badge b-block-action">blocking</span></td>
+    <td><span class="badge b-block-action">blocking</span></td>
+    <td><span class="badge b-block-action">blocking</span></td>
+  </tr>
+  <tr>
+    <td><span class="badge b-crit">CRITICAL</span></td>
+    <td><span class="badge b-block-action">blocking</span> + structured FOR/AGAINST debate</td>
+    <td><span class="badge b-block-action">blocking</span></td>
+    <td><span class="badge b-block-action">blocking</span></td>
+  </tr>
+</table>
+
+<h3>Bypass conditions</h3>
+<ul>
+  <li>User says "proceed anyway" → findings attached as warnings, gate passes</li>
+  <li>LOW impact → all gates skipped entirely</li>
+  <li>MEDIUM impact pre-impl → advisory only, no loop</li>
+</ul>
+
+<!-- ====================================== HIERARCHY ====================================== -->
+<h2 id="hierarchy">4-tier hierarchy <a href="#hierarchy" class="toc-anchor">#</a></h2>
+
+<table>
+  <tr><th>Tier</th><th>Role</th><th>Where defined</th></tr>
+  <tr><td><strong>Tier 0</strong></td><td>Root Orchestrator (Claude Code itself)</td><td><code>&lt;project&gt;/CLAUDE.md</code></td></tr>
+  <tr><td><strong>Tier 1</strong></td><td>Project Leads + universal cross-cutting agents</td><td><code>&lt;sub&gt;/CLAUDE.md</code> + <code>docs/agents/cross-cutting/</code></td></tr>
+  <tr><td><strong>Tier 2</strong></td><td>Sub-specialists (inline within each Lead)</td><td>Within each Lead's CLAUDE.md</td></tr>
+  <tr><td><strong>Tier 3</strong></td><td>Task agents + personas</td><td><code>docs/agents/task-agents/</code> + <code>docs/agents/personas/</code></td></tr>
+</table>
+
+<!-- ====================================== ADAPTIVE ====================================== -->
+<h2 id="adaptive">Adaptive Tier 2 depth <a href="#adaptive" class="toc-anchor">#</a></h2>
+
+<p>When a Lead crosses the complexity threshold (default <strong>30+ source files OR 5+ subdomains</strong>), bootstrap generates intermediate Domain Leads.</p>
+
+<pre>api-lead (Tier 1)
+├── device-domain-lead (Tier 2a)
+│   ├── ecm-specialist (Tier 2b)
+│   ├── slm-specialist (Tier 2b)
+│   └── ...
+├── user-domain-lead (Tier 2a)
+│   ├── companies-specialist (Tier 2b)
+│   └── ...
+└── infra-domain-lead (Tier 2a)
+    ├── queues-specialist (Tier 2b)
+    └── ...</pre>
+
+<p>Small Leads stay flat — no overhead for projects without genuine complexity.</p>
+
+<!-- ====================================== DA LEAD ====================================== -->
+<h2 id="dalead">da-lead router <a href="#dalead" class="toc-anchor">#</a></h2>
+
+<p>Located at <code>docs/agents/cross-cutting/da-lead.md</code>. Receives proposal + impact tier, reads <code>.claude/orchestration.config.yaml</code>, dispatches all applicable critics <strong>in parallel</strong>, collects findings, de-duplicates, synthesizes one verdict.</p>
+
+<h3>Verdict types</h3>
+<table>
+  <tr><th>Verdict</th><th>Meaning</th></tr>
+  <tr><td><span class="badge b-pass">PROCEED</span></td><td>No CRITICAL or IMPORTANT findings; implementation can begin</td></tr>
+  <tr><td><span class="badge b-imp">PROCEED WITH CHANGES</span></td><td>IMPORTANT findings; specific required changes listed</td></tr>
+  <tr><td><span class="badge b-block">RECONSIDER</span></td><td>CRITICAL findings; proposal needs rethinking</td></tr>
+</table>
+
+<p>For CRITICAL impact, also produces a structured FOR/AGAINST debate block.</p>
+
+<!-- ====================================== CORE CRITICS ====================================== -->
+<h2 id="core-critics">7 universal core DA critics <a href="#core-critics" class="toc-anchor">#</a></h2>
+<p>All shipped with the skill. Installed unconditionally in every project at <code>docs/agents/da/core/</code>.</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <div class="name">edge-case-critic</div>
+    <div class="desc">Null/empty/zero/million data points; timing races; session expiry mid-flow; browser quirks; off-by-one boundaries; partial-failure states.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">security-critic</div>
+    <div class="desc">OWASP Top 10 against the stack: injection, broken auth, sensitive data exposure, XSS, CSRF, misconfiguration, broken access control.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">performance-critic</div>
+    <div class="desc">Query plans at scale; N+1 patterns; bundle size; rendering perf; real-time fan-out cost; cache correctness; memory leaks.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">failure-mode-critic</div>
+    <div class="desc">Queue down; cache unavailable; DB pool exhausted; third-party quota hit; network flake → duplicates; idempotency; graceful degradation.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">consistency-critic</div>
+    <div class="desc">API shape consistency across consumers; event-naming; state-mgmt pattern alignment; cross-project parity; vocabulary drift.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">tech-debt-critic</div>
+    <div class="desc">Pattern inconsistency; unnecessary deps; copy-paste; maintainability in 6 months; mixed paradigms; circular deps; ambient coupling.</div>
+  </div>
+  <div class="mini-card" style="grid-column: span 2; border-color: var(--accent-2);">
+    <div class="name" style="color: var(--accent-2)">alternatives-critic</div>
+    <div class="desc"><b>Always produces output</b> — forces Plan B. Names at least one simpler/different approach with explicit tradeoff. Never returns N/A or PASS.</div>
+  </div>
+</div>
+
+<h3>Critic output format</h3>
+<pre><b>[CRITICAL | IMPORTANT | MINOR]</b> — &lt;short title&gt;
+Concern: &lt;what is the problem&gt;
+Why it matters: &lt;impact if not addressed&gt;
+Mitigation: &lt;specific fix or avoidance&gt;
+Evidence: &lt;file:line or pattern reference&gt;</pre>
+
+<p>End with <code>PASS</code>, <code>ISSUES_FOUND</code>, or <code>N/A — no concerns in this domain</code>.</p>
+
+<!-- ====================================== PACKS ====================================== -->
+<h2 id="packs">11 platform-packs (29 critic files) <a href="#packs" class="toc-anchor">#</a></h2>
+<p>Bootstrap matches each pack's <code>pack.yaml</code> triggers against the scan and installs only applicable packs.</p>
+
+<table>
+<tr><th>Pack</th><th>Triggers</th><th>Critics</th></tr>
+<tr>
+  <td><code>socket-realtime</code></td>
+  <td>socket.io, ws, sockjs, @nestjs/websockets</td>
+  <td>socket-fanout-critic · reconnect-correctness-critic</td>
+</tr>
+<tr>
+  <td><code>queue-system</code></td>
+  <td>bull, bullmq, agenda, celery, sidekiq, amqp, kafkajs</td>
+  <td>queue-backpressure-critic · job-idempotency-critic</td>
+</tr>
+<tr>
+  <td><code>multi-tenant</code></td>
+  <td>repeated tenant_id / company_id / organization_id / workspace_id columns</td>
+  <td>cross-tenant-leak-critic · tenant-scoping-critic</td>
+</tr>
+<tr>
+  <td><code>jwt-auth</code></td>
+  <td>passport-jwt, @nestjs/jwt, jsonwebtoken, jose</td>
+  <td>jwt-lifecycle-critic · refresh-token-critic</td>
+</tr>
+<tr>
+  <td><code>stripe-payments</code></td>
+  <td>stripe + webhook handler patterns</td>
+  <td>webhook-replay-critic · idempotency-key-critic · pii-exposure-critic</td>
+</tr>
+<tr>
+  <td><code>observability-sentry</code></td>
+  <td>@sentry/*, datadog, newrelic, bugsnag</td>
+  <td>observability-critic</td>
+</tr>
+<tr>
+  <td><code>timezone-sensitive</code></td>
+  <td>moment-timezone, luxon, pytz, dayjs timezone</td>
+  <td>timezone-critic</td>
+</tr>
+<tr>
+  <td><code>multi-db</code></td>
+  <td>multiple DataSource / Database / connection instances</td>
+  <td>multi-db-consistency-critic</td>
+</tr>
+<tr>
+  <td><code>graphql</code></td>
+  <td>graphql, apollo-server, type-graphql, @nestjs/graphql</td>
+  <td>resolver-complexity-critic · n-plus-one-graphql-critic</td>
+</tr>
+<tr>
+  <td><code>file-uploads</code></td>
+  <td>multer, formidable, busboy</td>
+  <td>file-upload-critic</td>
+</tr>
+<tr>
+  <td><code>cost-aware</code></td>
+  <td>continuously-growing tables (*_reading, *_log, *_event), quota-bound APIs</td>
+  <td>cost-critic</td>
+</tr>
+</table>
+
+<!-- ====================================== PRE-IMPL ====================================== -->
+<h2 id="pre-impl">Pre-implementation validators (6) <a href="#pre-impl" class="toc-anchor">#</a></h2>
+<p>Run after spec exists (post-brainstorming or post-architect), before any Lead is dispatched. Located at <code>docs/agents/validators/pre-impl/</code>.</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <div class="name">problem-statement</div>
+    <div class="desc">Does spec clearly state the problem? Does it match user's actual request? Drift check.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">requirement-completeness</div>
+    <div class="desc">Are all requirements stated and specific enough to implement? Any TBD gaps? Cross-system pieces specified?</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">success-criteria</div>
+    <div class="desc">Does spec define "done"? Are acceptance criteria explicit and verifiable? Could you write a test from this?</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">assumption</div>
+    <div class="desc">Are assumptions explicit and labeled? Risky/unverified assumptions that invalidate spec if wrong?</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">scope</div>
+    <div class="desc">Too big for one cycle? Too small? Multiple independent concerns bundled? Hidden scope creep?</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">contradiction</div>
+    <div class="desc">Internal contradictions? Section A vs B? Constraints vs goals? Architecture incompatible with requirements?</div>
+  </div>
+</div>
+
+<h3>Gate decisions</h3>
+<table>
+  <tr><th>Findings</th><th>Result</th></tr>
+  <tr><td>Any <span class="badge b-block">BLOCKER</span></td><td>FAIL → loop back with smart routing</td></tr>
+  <tr><td><span class="badge b-imp">IMPORTANT</span> only, no BLOCKERS</td><td>CONDITIONAL PASS — findings carried forward, must address during impl</td></tr>
+  <tr><td><span class="badge b-pass">PASS</span> or <span class="badge b-min">MINOR</span> only</td><td>Proceed to ROUTE</td></tr>
+</table>
+
+<!-- ====================================== POST-IMPL ====================================== -->
+<h2 id="post-impl">Post-implementation validators (6) <a href="#post-impl" class="toc-anchor">#</a></h2>
+<p>Run after Lead(s) finish implementation, before declaring done. 5 dedicated + <code>qa-delegator</code> (lives in cross-cutting) = 6 total.</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <div class="name">spec-conformance</div>
+    <div class="desc">Per-requirement mapping: is every spec requirement implemented in the diff? Lists gaps.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">acceptance-criteria</div>
+    <div class="desc">Each acceptance criterion verified against code. Per-criterion pass/fail.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">diff-scope</div>
+    <div class="desc">Did implementer stay in scope? Rogue refactors / "while I was there" cleanups? Removed existing behavior?</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">regression</div>
+    <div class="desc">Existing tests still pass? Lists newly failing tests with output. Distinguishes from pre-existing failures.</div>
+  </div>
+  <div class="mini-card">
+    <div class="name">smoke-test</div>
+    <div class="desc">Golden-path end-to-end check. HTTP request to new endpoint, page render, basic flow walkthrough.</div>
+  </div>
+  <div class="mini-card" style="border-color: var(--accent-2);">
+    <div class="name" style="color: var(--accent-2)">qa-delegator <span style="font-weight:normal;color:var(--text-dim);font-size:11px">(in cross-cutting/)</span></div>
+    <div class="desc">Wraps project QA (qa-lead agent or npm scripts). Classifies findings: security / performance / schema / test / type / lint.</div>
+  </div>
+</div>
+
+<!-- ====================================== LOOP MECH ====================================== -->
+<h2 id="loop-mech">Feedback loop machinery <a href="#loop-mech" class="toc-anchor">#</a></h2>
+
+<h3>Failure-context payload schema</h3>
+<pre>failure_context:
+  gate: "pre-impl" | "post-impl"
+  iteration: 1 | 2 | 3
+  failing_validators:
+    - name: "regression-validator"
+      severity: BLOCKER | IMPORTANT | MINOR
+      findings:
+        - description: "Test X now fails"
+          evidence:
+            file: "src/__tests__/ticket.test.ts"
+            line: 47
+            output: "Expected 200, received 500"
+          suggested_remediation: "Inspect TicketService.create()"
+  prior_iterations:
+    - iteration: 1
+      what_was_tried: "&lt;summary&gt;"
+      why_it_still_failed: "&lt;reason&gt;"
+  routing_decision:
+    target: "implementing Lead (support-lead)"
+    reason: "Test failure is implementation-level"</pre>
+
+<div class="callout">
+  Receiving agent's prompt always starts: <em>"You are receiving this work back from validation. Address the listed findings and ONLY those findings."</em>
+</div>
+
+<h3>Retry mechanics</h3>
+<table>
+  <tr><th>Property</th><th>Value</th></tr>
+  <tr><td>Counter scope</td><td>Per user message, per gate</td></tr>
+  <tr><td>Hard cap</td><td>3 retries per gate (max 6 per request)</td></tr>
+  <tr><td>Reset</td><td>New user message → both counters reset to 0</td></tr>
+  <tr><td>Visibility</td><td>Surfaces in response: "Pre-impl gate passed on iteration 2/3"</td></tr>
+</table>
+
+<div class="callout warn">
+  <strong>Cycle detection:</strong> compares failure signatures (validator name + finding hash) iteration-to-iteration. If iteration N+1 has the same primary blocker as N → abort early, escalate immediately. Prevents wasting all 3 attempts.
+</div>
+
+<!-- ====================================== ROUTING ====================================== -->
+<h2 id="routing">Smart routing matrix <a href="#routing" class="toc-anchor">#</a></h2>
+
+<table>
+<tr><th>Gate</th><th>Failing validator</th><th>Loop-back target</th></tr>
+<tr><td>DA</td><td>da-lead synthesizes CRITICAL</td><td>user (decide), then brainstorming if confirmed</td></tr>
+<tr><td>Pre-impl</td><td>problem-statement</td><td><strong>back to user</strong> (ambiguous request)</td></tr>
+<tr><td>Pre-impl</td><td>requirement-completeness / assumption / contradiction</td><td>brainstorming</td></tr>
+<tr><td>Pre-impl</td><td>scope (too big)</td><td>brainstorming + decomposition mandate</td></tr>
+<tr><td>Pre-impl</td><td>success-criteria</td><td>brainstorming + acceptance-criteria mandate</td></tr>
+<tr><td>Pre-impl</td><td>platform-pack spec validator</td><td>brainstorming with domain context</td></tr>
+<tr><td>Post-impl</td><td>spec-conformance</td><td>implementing Lead</td></tr>
+<tr><td>Post-impl</td><td>acceptance-criteria</td><td>implementing Lead</td></tr>
+<tr><td>Post-impl</td><td>diff-scope</td><td>implementing Lead + scope-trim mandate</td></tr>
+<tr><td>Post-impl</td><td>regression</td><td>implementing Lead with failing-test list</td></tr>
+<tr><td>Post-impl</td><td>smoke-test</td><td>implementing Lead with failing scenario</td></tr>
+<tr><td>Post-impl</td><td>qa-delegator (security)</td><td><strong>architect</strong> (re-design)</td></tr>
+<tr><td>Post-impl</td><td>qa-delegator (performance)</td><td>implementing Lead</td></tr>
+<tr><td>Post-impl</td><td>qa-delegator (schema)</td><td><strong>architect</strong></td></tr>
+<tr><td>Post-impl</td><td>qa-delegator (other)</td><td>implementing Lead</td></tr>
+</table>
+
+<!-- ====================================== ESCALATION ====================================== -->
+<h2 id="escalation">Escalation report format <a href="#escalation" class="toc-anchor">#</a></h2>
+
+<p>Triggered when retries exhaust OR cycle detected:</p>
+
+<pre>## Validation Loop Exhausted — Escalating to You
+
+**Request:** "..." (impact tier)
+**Gate that failed:** pre-impl | post-impl
+**Iterations attempted:** N/3
+
+### What we tried
+1. Iteration 1 — &lt;what Lead did&gt;. FAILED: &lt;validator&gt; (&lt;finding&gt;).
+2. Iteration 2 — &lt;what Lead did&gt;. FAILED: &lt;validator&gt; (&lt;finding&gt;).
+3. Iteration 3 — &lt;what Lead did&gt;. FAILED: &lt;validator&gt; (&lt;finding&gt;).
+
+### Where we are stuck
+&lt;analysis of why convergence failed&gt;
+
+### Recommended next steps (you decide)
+- A. &lt;expand-spec option&gt;
+- B. &lt;constrain-spec option&gt;
+- C. &lt;override-gate option&gt;
+
+Which?</pre>
+
+<!-- ====================================== CROSS-CUTTING ====================================== -->
+<h2 id="cross-cutting">Cross-cutting agents (Tier 1) <a href="#cross-cutting" class="toc-anchor">#</a></h2>
+
+<table>
+  <tr><th>Agent</th><th>File</th><th>Purpose</th></tr>
+  <tr><td><code>architect</code></td><td><code>cross-cutting/architect.md</code></td><td>Cross-repo / cross-module change manifests (invoked for HIGH/CRITICAL multi-repo work)</td></tr>
+  <tr><td><code>da-lead</code></td><td><code>cross-cutting/da-lead.md</code></td><td>Routes DA gate; fans out to critics in parallel; synthesizes verdict</td></tr>
+  <tr><td><code>pre-impl-validator</code></td><td><code>cross-cutting/pre-impl-validator.md</code></td><td>Routes pre-impl gate; fans out to spec validators</td></tr>
+  <tr><td><code>post-impl-validator</code></td><td><code>cross-cutting/post-impl-validator.md</code></td><td>Routes post-impl gate; fans out to code validators + qa-delegator</td></tr>
+  <tr><td><code>qa-delegator</code></td><td><code>cross-cutting/qa-delegator.md</code></td><td>Wraps project QA infrastructure (qa-lead, npm scripts, Makefile, CI)</td></tr>
+</table>
+
+<!-- ====================================== TASK AGENTS ====================================== -->
+<h2 id="task-agents">Task agents (Tier 3) <a href="#task-agents" class="toc-anchor">#</a></h2>
+
+<table>
+  <tr><th>Agent</th><th>Skill invoked</th><th>Approach</th></tr>
+  <tr><td><code>bug-fixer</code></td><td><code>superpowers:systematic-debugging</code></td><td>Reproduce → isolate → root cause → failing test → fix → verify</td></tr>
+  <tr><td><code>feature-builder</code></td><td><code>brainstorming → writing-plans → subagent-driven-development</code></td><td>End-to-end with TDD throughout</td></tr>
+  <tr><td><code>refactor</code></td><td><code>superpowers:test-driven-development</code></td><td>Preserve all tests, small steps, behavior unchanged</td></tr>
+  <tr><td><code>migration-writer</code></td><td><code>superpowers:test-driven-development</code></td><td>Up + down migrations, test cycle, document prod impact (only if DB detected)</td></tr>
+</table>
+
+<!-- ====================================== PERSONAS ====================================== -->
+<h2 id="personas">Personas (Tier 3) <a href="#personas" class="toc-anchor">#</a></h2>
+
+<p>Bootstrap suggests personas based on declared project domain:</p>
+
+<table>
+<tr><th>Domain</th><th>Suggested personas</th></tr>
+<tr><td>IoT / construction</td><td>site-engineer, safety-officer, building-manager, facility-manager, maintenance-tech</td></tr>
+<tr><td>Fleet / transport</td><td>fleet-operator, dispatch-coordinator, driver, lta-inspector</td></tr>
+<tr><td>E-commerce</td><td>customer, merchant, support-agent, fulfillment-manager</td></tr>
+<tr><td>Fintech</td><td>end-user, ops-analyst, compliance-officer, risk-analyst</td></tr>
+<tr><td>Healthcare</td><td>patient, provider, compliance-officer (HIPAA), billing-admin</td></tr>
+<tr><td>Education</td><td>student, instructor, admin, parent</td></tr>
+<tr><td>Developer tools / SaaS</td><td>developer, technical-buyer, ops-engineer, security-reviewer</td></tr>
+<tr><td>Real estate</td><td>tenant, landlord, agent, property-manager</td></tr>
+<tr><td>Hospitality</td><td>guest, front-desk-agent, housekeeping-lead, general-manager</td></tr>
+<tr><td>Manufacturing</td><td>line-operator, shift-supervisor, quality-inspector, plant-manager</td></tr>
+<tr><td>Gov / public sector</td><td>citizen, case-worker, supervisor, auditor</td></tr>
+<tr><td>Media</td><td>reader/viewer, contributor/creator, editor, ad-buyer</td></tr>
+</table>
+
+<p>Each persona has: role, background, goals, frustrations, vocabulary, evaluation criteria, channels used.</p>
+
+<!-- ====================================== SKILL INJECT ====================================== -->
+<h2 id="skill-inject">Skill injection at dispatch <a href="#skill-inject" class="toc-anchor">#</a></h2>
+
+<p>Subagents don't inherit parent skills. Tier 0 includes required-skill instructions in every dispatch prompt:</p>
+
+<pre>REQUIRED SKILLS — invoke before starting:
+1. `&lt;skill-id&gt;` — &lt;reason&gt;
+2. `&lt;skill-id&gt;` — &lt;reason&gt;</pre>
+
+<h3>Task-type → skill mapping</h3>
+<table>
+  <tr><th>Task type</th><th>Skills injected</th></tr>
+  <tr><td>New feature / design question</td><td><code>superpowers:brainstorming</code></td></tr>
+  <tr><td>Implementation from plan</td><td><code>superpowers:subagent-driven-development</code></td></tr>
+  <tr><td>Plan creation from spec</td><td><code>superpowers:writing-plans</code></td></tr>
+  <tr><td>Bug fix / debugging</td><td><code>superpowers:systematic-debugging</code></td></tr>
+  <tr><td>Refactoring / touching tests</td><td><code>superpowers:test-driven-development</code></td></tr>
+  <tr><td>UI redesign or new UI</td><td><code>ui-ux-pro-max:ui-ux-pro-max</code></td></tr>
+  <tr><td>Code review</td><td><code>superpowers:requesting-code-review</code></td></tr>
+  <tr><td>Branch finalization / PR</td><td><code>superpowers:finishing-a-development-branch</code></td></tr>
+</table>
+
+<!-- ====================================== SCAN ====================================== -->
+<h2 id="scan">Bootstrap scan signals <a href="#scan" class="toc-anchor">#</a></h2>
+
+<h3>Project shape</h3>
+<table>
+  <tr><th>Signal</th><th>Interpretation</th></tr>
+  <tr><td><code>package.json</code> at depth 1 only</td><td>Single-app (JS/TS)</td></tr>
+  <tr><td>Multiple <code>package.json</code> at depth 1-2</td><td>Monorepo (JS/TS)</td></tr>
+  <tr><td><code>pnpm-workspace.yaml</code>, <code>lerna.json</code>, <code>nx.json</code>, <code>turbo.json</code></td><td>Confirmed monorepo</td></tr>
+  <tr><td><code>Cargo.toml</code> with <code>[workspace]</code></td><td>Rust monorepo</td></tr>
+  <tr><td><code>go.mod</code> with replace directives</td><td>Go monorepo</td></tr>
+</table>
+
+<h3>Infrastructure deps → inferred capability</h3>
+<table>
+  <tr><th>Dep</th><th>Capability</th><th>Triggers pack</th></tr>
+  <tr><td><code>socket.io</code>, <code>ws</code>, <code>@nestjs/websockets</code></td><td>Real-time</td><td>socket-realtime</td></tr>
+  <tr><td><code>bull</code>, <code>bullmq</code>, <code>agenda</code>, <code>celery</code>, <code>sidekiq</code>, <code>amqp</code>, <code>kafkajs</code></td><td>Background queues</td><td>queue-system</td></tr>
+  <tr><td><code>ioredis</code>, <code>redis</code></td><td>Cache</td><td>(informs critics)</td></tr>
+  <tr><td><code>@sentry/*</code>, <code>datadog</code>, <code>newrelic</code></td><td>Observability</td><td>observability-sentry</td></tr>
+  <tr><td><code>typeorm</code>, <code>prisma</code>, <code>sequelize</code>, <code>mongoose</code></td><td>ORM</td><td>(informs critics)</td></tr>
+  <tr><td>Multiple DataSource instances</td><td>Multi-DB</td><td>multi-db</td></tr>
+  <tr><td><code>multer</code>, <code>formidable</code>, <code>busboy</code></td><td>File uploads</td><td>file-uploads</td></tr>
+  <tr><td><code>stripe</code></td><td>Payments</td><td>stripe-payments</td></tr>
+  <tr><td><code>passport-jwt</code>, <code>@nestjs/jwt</code>, <code>jsonwebtoken</code>, <code>jose</code></td><td>JWT auth</td><td>jwt-auth</td></tr>
+  <tr><td><code>graphql</code>, <code>apollo-server</code>, <code>type-graphql</code></td><td>GraphQL</td><td>graphql</td></tr>
+  <tr><td><code>moment-timezone</code>, <code>luxon</code>, <code>pytz</code></td><td>Timezone</td><td>timezone-sensitive</td></tr>
+</table>
+
+<h3>Domain markers (code-pattern detection)</h3>
+<table>
+  <tr><th>Marker</th><th>Indication</th></tr>
+  <tr><td>Repeated <code>tenant_id</code> / <code>company_id</code> / <code>organization_id</code></td><td>Multi-tenancy → triggers multi-tenant pack</td></tr>
+  <tr><td>Files/fields containing <code>pii</code> / <code>gdpr</code> / <code>hipaa</code> / <code>pci</code></td><td>Sensitive data → bump impact rules</td></tr>
+  <tr><td>Heavy timezone library usage</td><td>Timezone-sensitive → triggers timezone pack</td></tr>
+  <tr><td>Tables matching <code>*_reading</code>, <code>*_log</code>, <code>*_event</code></td><td>Continuously-growing → triggers cost-aware pack</td></tr>
+</table>
+
+<!-- ====================================== MIGRATION ====================================== -->
+<h2 id="migration">Migration protocol (7 phases) <a href="#migration" class="toc-anchor">#</a></h2>
+
+<ol>
+  <li><strong>Read</strong> existing state (root CLAUDE.md + docs/agents tree)</li>
+  <li><strong>Map</strong> existing → new universal slots</li>
+  <li><strong>Add</strong> new universal pieces</li>
+  <li><strong>Conflict resolution</strong> via AskUserQuestion — user chooses keep / replace / preserve-both</li>
+  <li><strong>Backup</strong> — everything copied to <code>.claude/orchestration.backup-&lt;YYYY-MM-DD-HHMMSS&gt;/</code> before any modification</li>
+  <li><strong>Generate</strong> — write new files; existing only modified with user approval</li>
+  <li><strong>Report</strong> — summary of preserved, replaced, and added</li>
+</ol>
+
+<h3>Existing → new mapping</h3>
+<table>
+<tr><th>Existing pattern</th><th>New location</th><th>Action</th></tr>
+<tr><td>Old monolithic <code>devils-advocate.md</code></td><td>Split: routing → da-lead, evaluation → core critics</td><td>Backed up + retired</td></tr>
+<tr><td>Existing <code>qa-lead.md</code> + sub-agents</td><td>Preserved + wrapped by new <code>qa-delegator</code></td><td>Preserved</td></tr>
+<tr><td>Existing <code>architect.md</code></td><td>Same location</td><td>Preserved as-is</td></tr>
+<tr><td>Existing project Leads</td><td>Same location</td><td>Preserved; adaptive Tier 2 added if threshold hit</td></tr>
+<tr><td>Existing personas</td><td><code>docs/agents/personas/</code></td><td>Preserved</td></tr>
+<tr><td>Existing task agents</td><td><code>docs/agents/task-agents/</code></td><td>Preserved</td></tr>
+</table>
+
+<div class="callout crit">
+  <strong>No content destroyed without explicit user consent.</strong> All overwrites preceded by timestamped backup.
+</div>
+
+<!-- ====================================== EXTENSION ====================================== -->
+<h2 id="extension">Extension contract <a href="#extension" class="toc-anchor">#</a></h2>
+
+<h3>Slash subcommands (v1: designed; manual workflow works)</h3>
+<table>
+  <tr><th>Command</th><th>Behavior</th></tr>
+  <tr><td><code>/orchestrate add-critic &lt;name&gt;</code></td><td>Scaffolds from <code>critic.template.md</code>, registers in config</td></tr>
+  <tr><td><code>/orchestrate add-validator &lt;name&gt;</code></td><td>Same for pre-impl or post-impl validators</td></tr>
+  <tr><td><code>/orchestrate add-persona &lt;role&gt;</code></td><td>Scaffolds from <code>persona.template.md</code></td></tr>
+  <tr><td><code>/orchestrate add-lead &lt;module&gt;</code></td><td>Adds a Lead for a newly-added module</td></tr>
+  <tr><td><code>/orchestrate status</code></td><td>Shows current orchestration state</td></tr>
+</table>
+
+<h3>Custom critic contract</h3>
+<ol>
+  <li>Copy <code>~/.claude/skills/orchestrate/assets/critic.template.md</code> to <code>docs/agents/da/&lt;your-pack&gt;/&lt;name&gt;.md</code></li>
+  <li>Fill in <code>{{critic_domain}}</code> and <code>{{evaluation_framework}}</code></li>
+  <li>Register in <code>.claude/orchestration.config.yaml</code>:
+<pre>platform_pack:
+  custom_critics:
+    - name: my-domain-critic
+      path: docs/agents/da/&lt;pack&gt;/&lt;name&gt;.md</pre></li>
+  <li>da-lead picks it up automatically on next dispatch</li>
+</ol>
+
+<!-- ====================================== STATE ====================================== -->
+<h2 id="state">Per-project state file <a href="#state" class="toc-anchor">#</a></h2>
+
+<p>Path: <code>&lt;project&gt;/.claude/orchestration.config.yaml</code></p>
+
+<pre>generated_at: 2026-05-30T09:07:09Z
+profile:
+  shape: monorepo | single_app | library | cli | static_site
+  primary_language: typescript
+  projects: [...]
+  infrastructure: {...}
+  domain_markers: {...}
+recommendations:
+  recommended_platform_packs: [...]
+  adaptive_tier2_leads: [...]
+  qa_wiring: {...}
+user_choices:
+  install_packs: [...]
+  enable_adaptive_tier2: [...]
+platform_pack:
+  name: oxen-pack
+  critics: [...]
+  custom_critics: []
+  pre_impl_validators: []
+  post_impl_validators: []
+adaptive_tier2:
+  enabled_leads: [...]
+  file_count_threshold: 30
+  subdomain_count_threshold: 5</pre>
+
+<div class="callout">
+  Read by da-lead, pre-impl-validator, post-impl-validator at dispatch time. Updated by <code>--update</code> runs. <strong>Committed to project's git.</strong>
+</div>
+
+<!-- ====================================== COMMANDS ====================================== -->
+<h2 id="commands">Command reference <a href="#commands" class="toc-anchor">#</a></h2>
+
+<h3>Python script CLIs (direct invocation)</h3>
+<pre><span style="color:var(--text-dim)"># Scan a project</span>
+python ~/.claude/skills/orchestrate/scripts/scan.py /path/to/project
+
+<span style="color:var(--text-dim)"># Generate recommendations from a profile</span>
+python -m scripts.infer profile.json
+
+<span style="color:var(--text-dim)"># Generate orchestration files</span>
+python -m scripts.generate /path/to/project
+
+<span style="color:var(--text-dim)"># Migrate (handles existing CLAUDE.md)</span>
+python -m scripts.migrate /path/to/project
+
+<span style="color:var(--text-dim)"># Update (diff against stored config)</span>
+python -m scripts.update /path/to/project
+
+<span style="color:var(--text-dim)"># Run tests</span>
+cd ~/.claude/skills/orchestrate && python -m pytest scripts/tests/ -v</pre>
+
+<!-- ====================================== FILES ====================================== -->
+<h2 id="files">Skill file structure <a href="#files" class="toc-anchor">#</a></h2>
+
+<pre>~/.claude/skills/orchestrate/   <span style="color:var(--text-dim)"># 84 files total</span>
+├── SKILL.md                              <span style="color:var(--text-dim)"># Entry point</span>
+├── references/                           <span style="color:var(--text-dim)"># Loaded only when needed</span>
+│   ├── scan-signals.md
+│   ├── classification-rules.md
+│   ├── loop-semantics.md
+│   ├── adaptive-tier2.md
+│   ├── platform-pack-library.md
+│   ├── persona-suggestions.md
+│   ├── migration-guide.md
+│   └── stack-detection-extras.md
+├── assets/                               <span style="color:var(--text-dim)"># Copied into projects</span>
+│   ├── *.template.md                     <span style="color:var(--text-dim"># 6 templates</span>
+│   ├── cross-cutting/                    <span style="color:var(--text-dim)"># 5 universal cross-cutting agents</span>
+│   ├── core-critics/                     <span style="color:var(--text-dim)"># 7 universal DA critics</span>
+│   ├── pre-impl-validators/              <span style="color:var(--text-dim)"># 6 universal pre-impl validators</span>
+│   ├── post-impl-validators/             <span style="color:var(--text-dim)"># 5 universal post-impl validators</span>
+│   └── task-agents/                      <span style="color:var(--text-dim)"># 4 universal task agents</span>
+├── platform-packs/                       <span style="color:var(--text-dim)"># 11 packs, 29 critic files</span>
+│   ├── socket-realtime/
+│   ├── queue-system/
+│   ├── multi-tenant/
+│   ├── jwt-auth/
+│   ├── stripe-payments/
+│   ├── observability-sentry/
+│   ├── timezone-sensitive/
+│   ├── multi-db/
+│   ├── graphql/
+│   ├── file-uploads/
+│   └── cost-aware/
+└── scripts/                              <span style="color:var(--text-dim)"># 5 Python modules + tests</span>
+    ├── scan.py
+    ├── infer.py
+    ├── generate.py
+    ├── migrate.py
+    ├── update.py
+    └── tests/                            <span style="color:var(--text-dim)"># 38 pytest tests, all passing</span></pre>
+
+<h3>Generated in each project</h3>
+<pre>&lt;project&gt;/
+├── CLAUDE.md                           <span style="color:var(--text-dim)"># Tier 0 root orchestrator</span>
+├── docs/agents/
+│   ├── cross-cutting/                  <span style="color:var(--text-dim)"># 5 agents (architect, da-lead, validators, qa-delegator)</span>
+│   ├── da/
+│   │   ├── core/                       <span style="color:var(--text-dim)"># 7 universal critics</span>
+│   │   └── &lt;project&gt;-pack/             <span style="color:var(--text-dim)"># platform-pack critics</span>
+│   ├── validators/
+│   │   ├── pre-impl/                   <span style="color:var(--text-dim)"># 6 validators</span>
+│   │   └── post-impl/                  <span style="color:var(--text-dim)"># 5 validators</span>
+│   ├── task-agents/                    <span style="color:var(--text-dim)"># 4 task agents</span>
+│   └── personas/                       <span style="color:var(--text-dim)"># user-selected personas</span>
+└── .claude/
+    ├── orchestration.config.yaml       <span style="color:var(--text-dim)"># state file</span>
+    └── orchestration.backup-*/         <span style="color:var(--text-dim)"># pre-migration backups</span></pre>
+
+<!-- ====================================== PATTERNS ====================================== -->
+<h2 id="patterns">Quick patterns <a href="#patterns" class="toc-anchor">#</a></h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h3 style="margin-top:0">"I want to use this skill on a fresh project"</h3>
+    <pre>cd /path/to/new-project
+/orchestrate</pre>
+    <p>Auto-detects fresh state, runs full pipeline (scan → infer → ask → generate).</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">"My project has an existing CLAUDE.md"</h3>
+    <pre>cd /path/to/existing-project
+/orchestrate</pre>
+    <p>Auto-detects Migrate mode. Backs up everything before any modification. Surfaces conflicts.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">"I just added a new dep (e.g. stripe)"</h3>
+    <pre>npm install stripe
+/orchestrate --update</pre>
+    <p>Re-scans, shows added packs (stripe-payments would surface). Re-run <code>/orchestrate</code> to install.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">"I want to add a project-specific critic"</h3>
+    <ol style="font-size:13px">
+      <li>Copy <code>assets/critic.template.md</code> into <code>docs/agents/da/&lt;pack&gt;/&lt;name&gt;.md</code></li>
+      <li>Fill in evaluation framework</li>
+      <li>Register in <code>.claude/orchestration.config.yaml</code> under <code>platform_pack.custom_critics</code></li>
+      <li>da-lead picks it up automatically</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">"Skill is too aggressive, gate keeps blocking"</h3>
+    <p>Tell Claude: <em>"proceed anyway"</em>. Validator findings become warnings attached to merge.</p>
+    <p>Or: re-classify the request impact (use the bump rule rationale).</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">"I want to see what would happen without changing files"</h3>
+    <pre>/orchestrate --dry-run</pre>
+    <p>Full scan + infer + report what WOULD be installed; writes nothing.</p>
+  </div>
+</div>
+
+<hr>
+<p style="text-align:center;color:var(--text-dim);font-size:12px;margin-top:32px">
+  Orchestrate skill · <code>~/.claude/skills/orchestrate/</code> · 2026-05-30
+</p>
+
+</main>
+</div>
+</body>
+</html>

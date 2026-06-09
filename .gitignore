@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.DS_Store
+# graphify run-time temp files (created in target projects, never part of the skill)
+.graphify_detect.json
+.graphify_extract.json
+.graphify_ast.json
+.graphify_semantic*.json
+.graphify_analysis.json
+.graphify_chunk_*
+.graphify_python
+graphify-out/
+
+# old orchestrate auto-backups
+.backups/

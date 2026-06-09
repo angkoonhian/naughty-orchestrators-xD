@@ -1,0 +1,14 @@
+name: graphql
+description: Critics for systems using GraphQL
+triggers:
+  any_of:
+    - dep_present: graphql
+    - dep_present: "apollo-server"
+    - dep_present: "@apollo/server"
+    - dep_present: "type-graphql"
+    - dep_present: "@nestjs/graphql"
+    - dep_present: graphql-yoga
+    - dep_present: mercurius
+critics:
+  - resolver-complexity-critic
+  - n-plus-one-graphql-critic

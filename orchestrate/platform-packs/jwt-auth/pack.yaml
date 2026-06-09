@@ -1,0 +1,14 @@
+name: jwt-auth
+description: Critics for systems using JWT-based authentication
+triggers:
+  any_of:
+    - dep_present: passport-jwt
+    - dep_present: "@nestjs/jwt"
+    - dep_present: jsonwebtoken
+    - dep_present: jose
+    - dep_present: next-auth
+    - dep_present: "laravel/sanctum"
+    - dep_present: "laravel/passport"
+critics:
+  - jwt-lifecycle-critic
+  - refresh-token-critic

@@ -1,0 +1,12 @@
+name: multi-db
+description: Critics for systems with multiple databases / connections
+triggers:
+  any_of:
+    - code_pattern: "new DataSource"
+    - code_pattern: "createConnection"
+    - code_pattern: "createPool"
+    - code_pattern: "new Pool"
+    - code_pattern: "DATABASES = {"
+  count_threshold: 2
+critics:
+  - multi-db-consistency-critic

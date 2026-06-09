@@ -1,0 +1,14 @@
+name: timezone-sensitive
+description: Critics for systems with heavy timezone-sensitive logic
+triggers:
+  any_of:
+    - dep_present: moment-timezone
+    - dep_present: "dayjs/plugin/timezone"
+    - dep_present: luxon
+    - dep_present: pytz
+    - dep_present: zoneinfo
+    - code_pattern: "Asia/Singapore"
+    - code_pattern: "UTC"
+    - code_pattern: "timezone"
+critics:
+  - timezone-critic

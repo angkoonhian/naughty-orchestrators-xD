@@ -1,0 +1,12 @@
+name: file-uploads
+description: Critics for systems handling file uploads
+triggers:
+  any_of:
+    - dep_present: multer
+    - dep_present: formidable
+    - dep_present: busboy
+    - dep_present: "@nestjs/platform-multer"
+    - dep_present: "fastify-multipart"
+    - dep_present: "express-fileupload"
+critics:
+  - file-upload-critic

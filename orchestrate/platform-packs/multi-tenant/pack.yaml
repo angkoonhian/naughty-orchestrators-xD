@@ -1,0 +1,15 @@
+name: multi-tenant
+description: Critics for systems with multi-tenancy (tenant/company/organization/workspace scoping)
+triggers:
+  any_of:
+    - code_pattern: "tenant_id"
+    - code_pattern: "company_id"
+    - code_pattern: "organization_id"
+    - code_pattern: "workspace_id"
+    - code_pattern: "tenantId"
+    - code_pattern: "companyId"
+    - code_pattern: "organizationId"
+    - code_pattern: "workspaceId"
+critics:
+  - cross-tenant-leak-critic
+  - tenant-scoping-critic

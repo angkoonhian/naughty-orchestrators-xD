@@ -1,0 +1,14 @@
+name: cost-aware
+description: Critics for systems with continuously-growing data tables and quota-bound APIs
+triggers:
+  any_of:
+    - code_pattern: "_reading"
+    - code_pattern: "_log"
+    - code_pattern: "_event"
+    - code_pattern: "_audit"
+    - dep_present: "@aws-sdk/client-ses"
+    - dep_present: "@sendgrid/mail"
+    - dep_present: twilio
+    - dep_present: "@twilio/voice-sdk"
+critics:
+  - cost-critic

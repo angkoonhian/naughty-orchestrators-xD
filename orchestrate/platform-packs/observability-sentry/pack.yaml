@@ -1,0 +1,15 @@
+name: observability-sentry
+description: Critics for systems using observability platforms (Sentry, Datadog, New Relic, Bugsnag)
+triggers:
+  any_of:
+    - dep_present: "@sentry/node"
+    - dep_present: "@sentry/react"
+    - dep_present: "@sentry/nextjs"
+    - dep_present: "@sentry/vue"
+    - dep_present: sentry-sdk
+    - dep_present: dd-trace
+    - dep_present: datadog
+    - dep_present: newrelic
+    - dep_present: bugsnag
+critics:
+  - observability-critic

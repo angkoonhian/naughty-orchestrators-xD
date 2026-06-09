@@ -1,0 +1,18 @@
+name: queue-system
+description: Critics for systems using background queues / message buses
+triggers:
+  any_of:
+    - dep_present: bull
+    - dep_present: bullmq
+    - dep_present: agenda
+    - dep_present: celery
+    - dep_present: sidekiq
+    - dep_present: amqp
+    - dep_present: amqplib
+    - dep_present: rabbitmq
+    - dep_present: kafkajs
+    - dep_present: Hangfire
+    - dep_present: Quartz
+critics:
+  - queue-backpressure-critic
+  - job-idempotency-critic

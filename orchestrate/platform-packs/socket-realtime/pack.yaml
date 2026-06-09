@@ -1,0 +1,14 @@
+name: socket-realtime
+description: Critics for systems using WebSocket / Socket.IO real-time messaging
+triggers:
+  any_of:
+    - dep_present: socket.io
+    - dep_present: "@nestjs/websockets"
+    - dep_present: ws
+    - dep_present: sockjs-client
+    - dep_present: phoenix_live_view
+    - dep_present: actioncable
+    - dep_present: Microsoft.AspNetCore.SignalR
+critics:
+  - socket-fanout-critic
+  - reconnect-correctness-critic
