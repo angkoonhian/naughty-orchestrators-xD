@@ -1015,7 +1015,7 @@ Which?</pre>
 
 <h3>Custom critic contract</h3>
 <ol>
-  <li>Copy <code>~/.claude/skills/orchestrate/assets/critic.template.md</code> to <code>docs/agents/da/&lt;your-pack&gt;/&lt;name&gt;.md</code></li>
+  <li>Copy <code>assets/critic.template.md</code> to <code>docs/agents/da/&lt;your-pack&gt;/&lt;name&gt;.md</code></li>
   <li>Fill in <code>{{critic_domain}}</code> and <code>{{evaluation_framework}}</code></li>
   <li>Register in <code>.claude/orchestration.config.yaml</code>:
 <pre>platform_pack:
@@ -1064,7 +1064,7 @@ adaptive_tier2:
 
 <h3>Python script CLIs (direct invocation)</h3>
 <pre><span style="color:var(--text-dim)"># Scan a project</span>
-python ~/.claude/skills/orchestrate/scripts/scan.py /path/to/project
+python scripts/scan.py /path/to/project
 
 <span style="color:var(--text-dim)"># Generate recommendations from a profile</span>
 python -m scripts.infer profile.json
@@ -1079,12 +1079,12 @@ python -m scripts.migrate /path/to/project
 python -m scripts.update /path/to/project
 
 <span style="color:var(--text-dim)"># Run tests</span>
-cd ~/.claude/skills/orchestrate && python -m pytest scripts/tests/ -v</pre>
+cd <orchestrate-skill-dir> && python -m pytest scripts/tests/ -v</pre>
 
 <!-- ====================================== FILES ====================================== -->
 <h2 id="files">Skill file structure <a href="#files" class="toc-anchor">#</a></h2>
 
-<pre>~/.claude/skills/orchestrate/   <span style="color:var(--text-dim)"># 84 files total</span>
+<pre>   <span style="color:var(--text-dim)"># 84 files total</span>
 ├── SKILL.md                              <span style="color:var(--text-dim)"># Entry point</span>
 ├── references/                           <span style="color:var(--text-dim)"># Loaded only when needed</span>
 │   ├── scan-signals.md
@@ -1189,7 +1189,7 @@ cd ~/.claude/skills/orchestrate && python -m pytest scripts/tests/ -v</pre>
 
 <hr>
 <p style="text-align:center;color:var(--text-dim);font-size:12px;margin-top:32px">
-  Orchestrate skill · <code>~/.claude/skills/orchestrate/</code> · 2026-05-30
+  Orchestrate skill · <code></code> · 2026-05-30
 </p>
 
 </main>

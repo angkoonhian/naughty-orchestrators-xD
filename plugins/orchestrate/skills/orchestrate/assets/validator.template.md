@@ -40,7 +40,7 @@ End with one of:
 
 ## Loop-back routing
 
-If you produce BLOCKERS, the routing for your validator is documented in `~/.claude/skills/orchestrate/references/loop-semantics.md` under the smart-routing matrix. Include sufficient detail in your findings so the receiving agent can act.
+If you produce BLOCKERS, the routing for your validator is documented in the `orchestrate` skill's `references/loop-semantics.md` under the smart-routing matrix. Include sufficient detail in your findings so the receiving agent can act.
 
 ## Constraints
 

@@ -61,7 +61,7 @@ generated `CLAUDE.md`):
 2. Maps the task to project(s); reads their `hubs` + `co_fire`.
 3. For a task naming specific files/modules, optionally escalates to:
    ```
-   python ~/.claude/skills/orchestrate/scripts/blast_radius.py <project>/graphify-out/graph.json "<target>"
+   python scripts/blast_radius.py <project>/graphify-out/graph.json "<target>"
    ```
    → dependents (≤3 hops), `is_hub`, `hub_rank`.
 4. Applies the trust model: hub hit / large blast radius → +1 impact tier; `co_fire` hit → add the coupled Lead.

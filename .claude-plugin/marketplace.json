@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "naughty-orchestrators-xD",
+  "description": "Budget-driven, capability-aware multi-tier agent orchestration, plus a folder -> knowledge-graph tool. Two plugins designed to click together.",
+  "owner": {
+    "name": "Ang Koon Hian",
+    "email": "angkoonhian@gmail.com"
+  },
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "orchestrate",
+      "source": "orchestrate",
+      "description": "Bootstrap and operate a budget-driven multi-tier agent orchestration system in any codebase: scan -> infer -> generate a tailored CLAUDE.md hierarchy, then run a dispatch loop with a Devil's-Advocate gate, pre/post-implementation validation gates, capability-aware routing to installed sub-agents + MCP, and optional graphify-powered structure-aware impact."
+    },
+    {
+      "name": "graphify",
+      "source": "graphify",
+      "description": "Turn any folder (code, docs, papers, images) into a navigable knowledge graph with community detection and an honest EXTRACTED/INFERRED audit trail; query / path / explain + MCP server."
+    }
+  ]
+}

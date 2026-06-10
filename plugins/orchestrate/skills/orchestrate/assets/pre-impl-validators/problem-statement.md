@@ -54,7 +54,7 @@ End with one of:
 
 ## Loop-back routing
 
-If you produce BLOCKERS, the routing is documented in `~/.claude/skills/orchestrate/references/loop-semantics.md`. Specifically, problem-statement BLOCKERs route back to the user (not brainstorming) because the original request is ambiguous and needs clarification.
+If you produce BLOCKERS, the routing is documented in the `orchestrate` skill's `references/loop-semantics.md`. Specifically, problem-statement BLOCKERs route back to the user (not brainstorming) because the original request is ambiguous and needs clarification.
 
 ## Constraints
 

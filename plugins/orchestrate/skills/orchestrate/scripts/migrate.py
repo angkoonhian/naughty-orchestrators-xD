@@ -77,7 +77,7 @@ def _add_adaptive_tier2_to_lead(project_root: Path, lead_name: str, subdomains: 
     section += "This Lead's scope exceeded the adaptive-Tier-2 threshold. Sub-specialists are organized under Domain Leads:\n\n"
     for sub in subdomains:
         section += f"- **{sub}-domain-lead** (Tier 2a) — orchestrates specialists within `{sub}/`\n"
-    section += "\nSee `~/.claude/skills/orchestrate/references/adaptive-tier2.md` for the pattern.\n"
+    section += "\nSee the `orchestrate` skill's `references/adaptive-tier2.md` for the pattern.\n"
 
     try:
         existing = lead_path.read_text(encoding="utf-8")

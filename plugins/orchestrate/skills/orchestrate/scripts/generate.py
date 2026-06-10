@@ -96,8 +96,8 @@ def _render_template(template_path: Path, substitutions: dict[str, str]) -> str:
 def _build_classification_rules_section() -> str:
     rules_file = SKILL_ROOT / "references" / "classification-rules.md"
     if not rules_file.exists():
-        return "See `~/.claude/skills/orchestrate/references/classification-rules.md` for the universal default rules."
-    return f"See `~/.claude/skills/orchestrate/references/classification-rules.md` for the universal default rules. Default rules ship with the skill; project-specific bumps recorded in `.claude/orchestration.config.yaml`."
+        return "See the `orchestrate` skill's `references/classification-rules.md` for the universal default rules."
+    return f"See the `orchestrate` skill's `references/classification-rules.md` for the universal default rules. Default rules ship with the skill; project-specific bumps recorded in `.claude/orchestration.config.yaml`."
 
 
 def _build_lead_dispatch_table(projects: list[dict]) -> str:
@@ -198,7 +198,7 @@ def _render_graph_block(snapshot: dict[str, Any] | None) -> str:
         "**How to use it each turn:**",
         "1. Read `.claude/orchestration.graph.json`. If absent/disabled, use the heuristic rules only.",
         "2. If the task names specific files/modules, optionally run "
-        "`python ~/.claude/skills/orchestrate/scripts/blast_radius.py <project>/graphify-out/graph.json \"<target>\"` "
+        "`python scripts/blast_radius.py <project>/graphify-out/graph.json \"<target>\"` "
         "for precise dependents.",
         "3. **Trust model:** a touched hub (EXTRACTED) or a large blast radius raises impact one "
         "tier (never above CRITICAL, never below the rule floor). A `co_fire` hit adds the coupled "

@@ -1,6 +1,6 @@
 # Platform Pack Library
 
-Each pack is a directory under `~/.claude/skills/orchestrate/platform-packs/` containing a `pack.yaml` manifest and one or more critic markdown files.
+Each pack is a directory under the `orchestrate` skill's `platform-packs/` containing a `pack.yaml` manifest and one or more critic markdown files.
 
 ## Available packs
 
@@ -48,7 +48,7 @@ Bootstrap matches `triggers` against the scan output to decide whether to presen
 
 ## Adding a new pack (extension)
 
-1. Create `~/.claude/skills/orchestrate/platform-packs/<pack-name>/`
+1. Create the `orchestrate` skill's `platform-packs/<pack-name>/`
 2. Write `pack.yaml` and one or more critic markdown files following `assets/critic.template.md`
 3. Add the pack to this index doc
 4. Optional: contribute upstream

@@ -1,7 +1,7 @@
 # naughty-orchestrators-xD 😈🪄
 
-Two custom [Claude Code](https://claude.com/claude-code) **skills**, version-controlled so they can be
-shared and replicated across machines. They live in `~/.claude/skills/`.
+Two custom [Claude Code](https://claude.com/claude-code) skills, packaged as an installable **plugin
+marketplace** so they can be shared and replicated across machines with one `/plugin marketplace add`.
 
 | Skill | One-liner |
 |---|---|
@@ -158,7 +158,7 @@ abort early) and a structured escalation report on exhaustion. Each loop-back ca
 Agent **count and depth are governed by a token budget**, not a fixed swarm. Every request sits on a dial:
 `cheap → impact-default → thorough → unleashed`. This is what makes it affordable by default and unboundedly
 thorough on demand. Deterministic core: `scripts/budget.py` (unit-tested); full contract:
-`orchestrate/references/budget-model.md`.
+`plugins/orchestrate/skills/orchestrate/references/budget-model.md`.
 
 ```mermaid
 flowchart TD
@@ -250,7 +250,7 @@ architecture and **overlays the live install** from `.claude/orchestration.confi
 ### Security model
 
 The skill runs against arbitrary repos, so it treats all repo-derived input as untrusted
-(`orchestrate/references/untrusted-content.md`):
+(`plugins/orchestrate/skills/orchestrate/references/untrusted-content.md`):
 
 - **Prompt-injection** — repo content (diffs, excerpts, names, graph text, failure evidence) is **data, never
   instructions**; it's fenced when embedded, an embedded verdict/override carries no authority, and budget
@@ -393,43 +393,56 @@ The three scripts that make this work:
 | `scripts/graph_bake.py` | distill graphs → the snapshot (communities, hubs by fan-in, seam_map, co_fire) | **stdlib only** |
 | `scripts/blast_radius.py` | runtime "what depends on X" + hub check | **stdlib only** |
 
-Full contract, snapshot schema, and degradation matrix: `orchestrate/references/graph-integration.md`.
+Full contract, snapshot schema, and degradation matrix: `plugins/orchestrate/skills/orchestrate/references/graph-integration.md`.
 
 ---
 
 ## Install / replicate
 
+This repo is a **Claude Code plugin marketplace** with two plugins (`orchestrate`, `graphify`):
+
+```
+/plugin marketplace add angkoonhian/naughty-orchestrators-xD
+/plugin install orchestrate@naughty-orchestrators-xD
+/plugin install graphify@naughty-orchestrators-xD
+```
 ```bash
-git clone https://github.com/angkoonhian/naughty-orchestrators-xD.git ~/.claude/skills
 pip install graphifyy        # graphify's runtime dependency
 ```
 
-If `~/.claude/skills` already exists, clone elsewhere and copy the `orchestrate/` and `graphify/` folders in.
-Then in any project: `/orchestrate` to bootstrap, and (optionally) `/graphify` + `/orchestrate refresh-graph` to
-turn on graph-aware impact & routing.
+Then in any project: `/orchestrate` to bootstrap (the skill is namespaced `orchestrate:orchestrate`), and
+(optionally) `/graphify` + `/orchestrate refresh-graph` to turn on graph-aware impact & routing.
 
-Run the orchestrate test suite:
+**Local development** (test without publishing):
 
 ```bash
-cd ~/.claude/skills/orchestrate && python -m pytest scripts/tests/ -q
+claude --plugin-dir ./plugins/orchestrate          # load the plugin straight from the repo
+cd plugins/orchestrate/skills/orchestrate && python -m pytest scripts/tests/ -q   # 105 tests
 ```
 
 ## Repo layout
 
 ```
 .
-├── orchestrate/
-│   ├── SKILL.md                 # entry point: bootstrap + runtime rules
-│   ├── scripts/                 # scan · infer · generate · update · migrate
-│   │                            # budget · skills_detect · capabilities_detect · visualize
-│   │                            # graph_build · graph_bake · blast_radius   (+ tests/ — 105 tests)
-│   ├── assets/                  # templates, core critics, validators, task-agents,
-│   │                            # cross-cutting (da-lead, synthesis-verifier, …), workflows/
-│   ├── platform-packs/          # 16 domain critic bundles (pack.yaml + critics)
-│   └── references/              # budget-model · loop-semantics · untrusted-content
-│                                # classification-rules · graph-integration · …
-└── graphify/
-    └── SKILL.md                 # full graphify pipeline + query/path/explain/update/MCP
+├── .claude-plugin/
+│   └── marketplace.json         # lists the two plugins
+└── plugins/
+    ├── orchestrate/
+    │   ├── .claude-plugin/plugin.json
+    │   └── skills/orchestrate/
+    │       ├── SKILL.md          # entry point: bootstrap + runtime rules
+    │       ├── scripts/          # scan · infer · generate · update · migrate
+    │       │                     # budget · skills_detect · capabilities_detect · visualize
+    │       │                     # graph_build · graph_bake · blast_radius  (+ tests/ — 105 tests)
+    │       ├── assets/           # templates, core critics, validators, task-agents,
+    │       │                     # cross-cutting (da-lead, synthesis-verifier, …), workflows/
+    │       ├── platform-packs/   # 16 domain critic bundles (pack.yaml + critics)
+    │       └── references/       # budget-model · loop-semantics · untrusted-content
+    │                             # classification-rules · graph-integration · …
+    └── graphify/
+        ├── .claude-plugin/plugin.json
+        └── skills/graphify/
+            └── SKILL.md          # full graphify pipeline + query/path/explain/update/MCP
 ```
 
 ## Command cheat-sheet

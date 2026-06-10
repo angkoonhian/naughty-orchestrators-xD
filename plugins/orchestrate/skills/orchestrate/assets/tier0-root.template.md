@@ -24,7 +24,7 @@ This project uses a 4-tier agent system. Claude Code acts as the **root orchestr
 7. SYNTHESIZE       unify, present to user
 ```
 
-Full semantics in `~/.claude/skills/orchestrate/references/loop-semantics.md`.
+Full semantics in the `orchestrate` skill's `references/loop-semantics.md`.
 
 ### Budget-driven dispatch (token control)
 

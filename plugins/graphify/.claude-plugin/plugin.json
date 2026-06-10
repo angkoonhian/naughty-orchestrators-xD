@@ -1,0 +1,13 @@
+{
+  "name": "graphify",
+  "description": "Turn any folder (code, docs, papers, images) into a navigable knowledge graph with community detection and an honest EXTRACTED/INFERRED audit trail; query / path / explain + MCP server.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Ang Koon Hian",
+    "email": "angkoonhian@gmail.com"
+  },
+  "homepage": "https://github.com/angkoonhian/naughty-orchestrators-xD",
+  "repository": "https://github.com/angkoonhian/naughty-orchestrators-xD",
+  "license": "MIT",
+  "keywords": ["knowledge-graph", "graph", "community-detection", "ast", "semantic-extraction", "mcp"]
+}
