@@ -374,15 +374,15 @@ sequenceDiagram
     participant S as Snapshot
     participant B as blast_radius.py
     participant L as Lead(s)
-    U->>O: "change getCredentials() in api"
-    O->>S: hubs + co_fire for api
-    S-->>O: getCredentials is hub #1; api ⇄ fieldops, support
+    U->>O: change getCredentials() in api
+    O->>S: hubs and co_fire for api
+    S-->>O: getCredentials is top hub · api ⇄ fieldops, support
     O->>B: dependents of getCredentials()? (optional)
-    B-->>O: 216 dependents · is_hub=true
-    O->>O: raise impact → HIGH ; add fieldops + support Leads
-    O->>L: dispatch with blocking DA + validation gates
+    B-->>O: 216 dependents · is_hub true
+    O->>O: raise impact → HIGH · add fieldops and support Leads
+    O->>L: dispatch with blocking DA and validation gates
     L-->>O: results
-    O-->>U: synthesis + "graph: hub touched (EXTRACTED) → HIGH; co-fired support/fieldops"
+    O-->>U: synthesis · graph hub touched (EXTRACTED) → HIGH, co-fired support/fieldops
 ```
 
 The three scripts that make this work:
