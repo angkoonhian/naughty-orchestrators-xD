@@ -210,6 +210,44 @@ def collect(project_root: Path) -> dict[str, Any]:
         projs = prof.get("projects") or []
         name = f"{project_root.name} · {len(projs) if isinstance(projs, list) else 0} projects · {prof.get('shape', '?')}"
 
+    # Thinking skills detected (surfaced in the discovery summary)
+    try:
+        from scripts import skills_detect as _sk
+        _detected_skills = _sk.detect_skills(project_root)
+        skills = {"detected": len(_detected_skills),
+                  "rows": [{"task": t, "skill": c} for t, c in _sk.resolve_catalog(_detected_skills)]}
+    except Exception:
+        skills = {"detected": 0, "rows": []}
+
+    counts = {
+        "projects": (len(_asdict(cfg.get("profile")).get("projects") or []) if installed else 0),
+        "leads": sum(1 for n in nodes if n["kind"] == "lead"),
+        "critics": sum(1 for n in nodes if n["kind"] in ("critic", "pack")),
+        "validators": sum(1 for n in nodes if n["kind"] == "validator"),
+        "tier2": sum(1 for n in nodes if n["kind"] == "tier2"),
+        "task_agents": sum(1 for n in nodes if n["kind"] == "tier3"),
+        "nodes": len(nodes),
+    }
+
+    # The discovery summary — an at-a-glance digest of everything bootstrap/detection found.
+    prof = _asdict(cfg.get("profile")) if installed else {}
+    summary = {
+        "installed": installed,
+        "project": project_root.name,
+        "shape": prof.get("shape", "—") if installed else "generic architecture",
+        "language": prof.get("primary_language", "—") if installed else "—",
+        "generated_at": (cfg or {}).get("generated_at", "") if installed else "",
+        "counts": counts,
+        "budget_mode": budget.get("mode", "budgeted"),
+        "budget_defaults": budget.get("defaults", {}),
+        "skills_detected": skills["detected"],
+        "agents_detected": capabilities.get("agent_count", 0),
+        "roles_matched": capabilities.get("matched", 0),
+        "roles_total": len(capabilities.get("specialists", [])),
+        "mcp": len(capabilities.get("mcp", [])),
+        "graph": bool(graph.get("enabled", False)),
+    }
+
     return {
         "title": "Orchestration Map",
         "subtitle": name,
@@ -221,12 +259,9 @@ def collect(project_root: Path) -> dict[str, Any]:
         "budget": budget,
         "graph": graph,
         "capabilities": capabilities,
-        "counts": {
-            "leads": sum(1 for n in nodes if n["kind"] == "lead"),
-            "critics": sum(1 for n in nodes if n["kind"] in ("critic", "pack")),
-            "validators": sum(1 for n in nodes if n["kind"] == "validator"),
-            "tier2": sum(1 for n in nodes if n["kind"] == "tier2"),
-        },
+        "skills": skills,
+        "summary": summary,
+        "counts": counts,
     }
 
 
@@ -304,6 +339,10 @@ nav button.active{background:var(--panel);color:var(--ink);border-color:var(--ac
 table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border:1px solid var(--line);padding:7px 10px;text-align:left}th{color:var(--mut);font-weight:600}
 .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.mut{color:var(--mut)}
 .card{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:var(--panel);margin:10px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:8px 0 16px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:13px 15px;background:var(--panel)}
+.stat .n{font-size:25px;font-weight:700;line-height:1.1}.stat .l{font-size:12px;color:var(--mut);margin-top:3px}.stat .s{font-size:11px;color:var(--mut);margin-top:2px}
+.hl{color:var(--acc)}
 .layer{display:flex;gap:10px;align-items:stretch;margin:8px 0}
 .layer .lx{flex:1;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel)}
 .arrow{color:var(--mut);align-self:center}
@@ -312,14 +351,16 @@ table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border:1px solid v
 <h1>__TITLE__</h1><span class="sub" id="subt"></span>
 <span class="badge" id="modeb"></span>
 <nav>
-<button data-v="hier" class="active">Hierarchy</button>
+<button data-v="summary" class="active">Summary</button>
+<button data-v="hier">Hierarchy</button>
 <button data-v="loop">Dispatch loop</button>
 <button data-v="budget">Budget engine</button>
 <button data-v="caps">Capabilities</button>
 <button data-v="graph">Graphify</button>
 </nav></header>
 <div class="wrap">
- <div class="view active" id="hier">
+ <div class="view active" id="summary"><div class="pad" id="summaryp"></div></div>
+ <div class="view" id="hier">
    <svg id="hsvg"></svg>
    <div class="legend" id="legend"></div>
    <div class="hint">scroll = zoom · drag = pan · click a node</div>
@@ -450,6 +491,26 @@ gp.innerHTML = G && G.enabled ? `<h2>Graphify integration <span class="badge on"
   <div class="card"><div class="k mut">Trust model</div>EXTRACTED facts may raise impact / add a coupled Lead autonomously${G.trust&&G.trust.raise_impact_on_hub?' (hub touch → +1 tier)':''}; INFERRED/seam facts are advisory${G.trust?' (co-fire blocking when '+esc(G.trust.cofire_blocking_when||'EXTRACTED')+')':''}. hub_top_n=${esc(G.hub_top_n==null?8:G.hub_top_n)}.</div>
   <div class="card"><div class="k mut">Runtime</div>Snapshot-first; for a changeset Tier 0 may run <code>scripts/blast_radius.py &lt;proj&gt;/graphify-out/graph.json "&lt;target&gt;"</code>. Rebuild with <code>/orchestrate refresh-graph</code> (opt-in, never auto).</div>`
   : `<h2>Graphify integration <span class="badge">disabled</span></h2><p class="mut">Not enabled for this install (or generic view). When enabled, orchestrate consumes a graphify knowledge graph to make impact/routing/Tier-2 structure-aware. Enable via the bootstrap, then run <code>/orchestrate refresh-graph</code>.</p>`;
+
+// ---- discovery summary (landing tab) ----
+const SM = DATA.summary || {}, CN = SM.counts || {};
+const fmtK = n => !n ? '0' : (n>=1e6?(n/1e6).toFixed(1)+'m':n>=1e3?Math.round(n/1e3)+'k':String(n));
+const stat = (n,l,sub,cls) => `<div class="stat"><div class="n ${cls||''}">${n}</div><div class="l">${esc(l)}</div>${sub?`<div class="s">${esc(sub)}</div>`:''}</div>`;
+document.getElementById('summaryp').innerHTML =
+ `<h2>Discovery summary <span class="badge ${SM.installed?'on':''}">${SM.installed?'live install':'generic architecture'}</span></h2>`+
+ `<p class="mut">What bootstrap + detection found for <b>${esc(SM.project||'')}</b>${SM.generated_at?' · generated '+esc(String(SM.generated_at).slice(0,10)):''}.</p>`+
+ `<div class="k mut">Project</div><div class="stats">`+
+   stat(CN.projects||0,'projects',SM.shape)+stat(esc(SM.language||'—'),'primary language')+stat(CN.nodes||0,'nodes in map')+`</div>`+
+ `<div class="k mut">Hierarchy</div><div class="stats">`+
+   stat(CN.leads||0,'project leads')+stat(CN.critics||0,'DA critics')+stat(CN.validators||0,'validators')+stat(CN.tier2||0,'tier-2 leads')+stat(CN.task_agents||0,'task agents')+`</div>`+
+ `<div class="k mut">Discovered capabilities — installed things the orchestrator uses</div><div class="stats">`+
+   stat(SM.skills_detected||0,'thinking skills','wired into dispatch','hl')+
+   stat(SM.agents_detected||0,'plugin sub-agents',(SM.roles_matched||0)+'/'+(SM.roles_total||0)+' roles auto-routed','hl')+
+   stat(SM.mcp||0,'MCP tool servers','available to agents','hl')+`</div>`+
+ `<div class="k mut">Engine</div><div class="stats">`+
+   stat(esc(SM.budget_mode||'budgeted'),'budget mode','MED '+fmtK((SM.budget_defaults||{}).MEDIUM)+' · HIGH '+fmtK((SM.budget_defaults||{}).HIGH))+
+   stat(SM.graph?'on':'off','graphify',SM.graph?'structure-aware routing':'heuristic routing')+`</div>`+
+ `<p class="mut">Tabs above drill into each area. Re-run <code>/orchestrate update</code> to refresh detection.</p>`;
 </script></body></html>"""
 
 
