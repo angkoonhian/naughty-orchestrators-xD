@@ -39,6 +39,8 @@ def _load(path: str | Path) -> dict[str, Any] | None:
     if not p.exists():
         return None
     try:
+        if p.stat().st_size > 256 * 1024 * 1024:  # DoS guard: refuse implausibly large graph.json
+            return None
         data = json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return None

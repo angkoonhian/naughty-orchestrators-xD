@@ -43,12 +43,17 @@ SEAM_RELATIONS = {
 }
 
 
+MAX_GRAPH_BYTES = 256 * 1024 * 1024  # 256 MB — refuse implausibly large graph.json (DoS guard)
+
+
 def load_graph(path: str | Path) -> dict[str, Any] | None:
-    """Load a graphify graph.json. Returns None on missing/invalid file."""
+    """Load a graphify graph.json. Returns None on missing/invalid/oversized file."""
     p = Path(path)
     if not p.exists():
         return None
     try:
+        if p.stat().st_size > MAX_GRAPH_BYTES:
+            return None
         data = json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return None

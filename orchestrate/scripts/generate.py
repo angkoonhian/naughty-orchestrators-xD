@@ -12,10 +12,36 @@ Writes:
 """
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 from typing import Any
 import yaml
+
+
+def _safe_segment(s: str) -> str:
+    """Reduce an untrusted value (e.g. a scanned package.json `name`) to ONE safe path
+    segment — no traversal, no separators. Prevents writes escaping the project root."""
+    base = Path(str(s)).name                       # drop any directory part / traversal
+    cleaned = re.sub(r"[^A-Za-z0-9._@-]", "-", base).strip("-.")
+    return cleaned or "project"
+
+
+def _md_cell(s: Any, limit: int = 100) -> str:
+    """Sanitize an untrusted value for a Markdown table cell in a generated CLAUDE.md
+    (an agent-instruction file): no newlines, escaped pipes, no code-span/backtick or
+    brace-token injection, bounded length."""
+    t = str("" if s is None else s).replace("\r", " ").replace("\n", " ")
+    t = t.replace("`", "").replace("|", "\\|").replace("{{", "{ {").replace("}}", "} }")
+    return (t[:limit] + "…") if len(t) > limit else t
+
+
+def _within(root: Path, target: Path) -> bool:
+    """True iff target resolves inside root — used to refuse writes outside the project."""
+    try:
+        return str(target.resolve()).startswith(str(Path(root).resolve()))
+    except Exception:
+        return False
 import datetime
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
@@ -52,11 +78,19 @@ def _copy_file(src: Path, dst: Path, allow_overwrite: bool = False) -> Path | No
 
 
 def _render_template(template_path: Path, substitutions: dict[str, str]) -> str:
-    """Simple {{var}} substitution. Coerces None values to empty string."""
+    """Single-pass {{var}} substitution. Single-pass means a substituted value that itself
+    contains a `{{token}}` is NOT re-expanded — closing a second-order injection where a
+    scanned value pulls in other generated content. Unknown tokens are left intact."""
     content = template_path.read_text(encoding="utf-8")
-    for key, value in substitutions.items():
-        content = content.replace(f"{{{{{key}}}}}", "" if value is None else str(value))
-    return content
+
+    def _repl(m: re.Match) -> str:
+        key = m.group(1)
+        if key in substitutions:
+            v = substitutions[key]
+            return "" if v is None else str(v)
+        return m.group(0)
+
+    return re.sub(r"\{\{(\w+)\}\}", _repl, content)
 
 
 def _build_classification_rules_section() -> str:
@@ -69,7 +103,7 @@ def _build_classification_rules_section() -> str:
 def _build_lead_dispatch_table(projects: list[dict]) -> str:
     rows = ["| Project Lead | Path | Scope |", "|---|---|---|"]
     for p in projects:
-        rows.append(f"| `{p['name']}-lead` | `{p.get('path', '')}/CLAUDE.md` | {p.get('framework', 'unknown')} project |")
+        rows.append(f"| `{_md_cell(p.get('name', '?'))}-lead` | `{_md_cell(p.get('path', ''))}/CLAUDE.md` | {_md_cell(p.get('framework', 'unknown'))} project |")
     return "\n".join(rows)
 
 
@@ -92,6 +126,16 @@ def _build_skill_injection_table() -> str:
 | Bug fix / debug | `superpowers:systematic-debugging` |
 | Refactor / tests | `superpowers:test-driven-development` |
 | UI redesign | `ui-ux-pro-max:ui-ux-pro-max` |"""
+
+
+def _skill_injection_table(project_root: Path) -> str:
+    """Dynamic, auto-detected skill-injection table (only skills actually installed,
+    with graceful fallbacks). Falls back to the static table if detection fails."""
+    try:
+        from scripts import skills_detect
+        return skills_detect.build_skill_injection_md(project_root)
+    except Exception:
+        return _build_skill_injection_table()
 
 
 def _render_qa_delegator(qa_wiring: dict[str, Any], qa_lead_present: bool) -> str:
@@ -288,7 +332,8 @@ def generate_orchestration(
     manifest["created"].extend(str(p) for p in core_written)
 
     # 3. Platform-pack critics — for each confirmed pack
-    pack_slug = user_choices.get("project_pack_slug", profile.get("projects", [{}])[0].get("name", "project")) + "-pack"
+    _raw_slug = user_choices.get("project_pack_slug") or (profile.get("projects") or [{}])[0].get("name") or "project"
+    pack_slug = _safe_segment(str(_raw_slug)) + "-pack"   # one safe path segment — no traversal
     pack_dest = docs_agents / "da" / pack_slug
     for pack_name in user_choices.get("install_packs", []):
         pack_dir = PACKS / pack_name
@@ -325,7 +370,7 @@ def generate_orchestration(
             "cross_cutting_table": _build_cross_cutting_table(),
             "migration_writer_row": "| migration-writer | `docs/agents/task-agents/migration-writer.md` | DB migration writing |" if user_choices.get("install_migration_writer", True) else "",
             "persona_table": "(no personas installed; add via `/orchestrate add-persona`)",
-            "skill_injection_table": _build_skill_injection_table(),
+            "skill_injection_table": _skill_injection_table(project_root),
             "tech_stack": "(detected by bootstrap)",
             "code_style": "(per project)",
             "commands": "(per project)",
@@ -337,16 +382,20 @@ def generate_orchestration(
     # 8. Per-project Lead CLAUDE.md — only if project's CLAUDE.md doesn't exist
     lead_template_path = ASSETS / "lead.template.md"
     for proj in profile.get("projects", []):
-        proj_path = Path(proj["path"])
+        if not isinstance(proj, dict) or not proj.get("path"):
+            continue
+        proj_path = Path(str(proj["path"]))
+        if not _within(project_root, proj_path):
+            continue  # refuse to write a CLAUDE.md outside the project root (tampered config)
         lead_md = proj_path / "CLAUDE.md"
         if lead_md.exists():
             continue
         subs = {
-            "lead_name": f"{proj['name']}-lead",
-            "project_name": proj["name"],
-            "project_description": f"{proj.get('framework', 'unknown')} project at `{proj['path']}`",
-            "lead_scope": f"Code under `{proj['path']}`",
-            "tech_stack": proj.get("framework", "unknown"),
+            "lead_name": f"{_md_cell(proj.get('name', '?'))}-lead",
+            "project_name": _md_cell(proj.get("name", "?")),
+            "project_description": f"{_md_cell(proj.get('framework', 'unknown'))} project at `{_md_cell(proj.get('path', ''))}`",
+            "lead_scope": f"Code under `{_md_cell(proj.get('path', ''))}`",
+            "tech_stack": _md_cell(proj.get("framework", "unknown")),
             "sub_specialists": "(to be defined — add via /orchestrate add-specialist)",
             "dispatch_rows": "| (pattern) | (specialist) | (skill) |",
             "patterns": "(per project conventions)",
@@ -380,6 +429,19 @@ def generate_orchestration(
             "subdomain_count_threshold": 5,
         },
         "graph_integration": user_choices.get("graph_integration") or {"enabled": False},
+        "budget": user_choices.get("budget") or {
+            "mode": "budgeted",  # budgeted | unlimited (set 'unlimited' for MAX-plan users)
+            "defaults": {"LOW": 0, "MEDIUM": 150000, "HIGH": 500000, "CRITICAL": 1200000},
+            "max_request_budget": 2000000,
+            "overrides": {"cheap": 0.4, "thorough": 3.0},
+            "deepen_threshold": 0.7,
+            "deepen_cost": 40000,
+            "verify_cost": 25000,
+            "workflow_threshold": 12,
+            "force_deepen_dimensions": ["security", "auth", "data-loss", "migrations", "cross-tenant"],
+            "unleashed": {"max_rounds": 5, "convergence_clean_rounds": 2, "agent_ceiling": 800},
+            "models": {"mechanical": "haiku", "judgment": "opus"},
+        },
     }
     config_path.write_text(yaml.safe_dump(config_data, sort_keys=False, default_flow_style=False), encoding="utf-8")
     manifest["created"].append(str(config_path))
