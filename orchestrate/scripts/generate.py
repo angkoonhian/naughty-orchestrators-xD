@@ -138,6 +138,16 @@ def _skill_injection_table(project_root: Path) -> str:
         return _build_skill_injection_table()
 
 
+def _capabilities_table(project_root: Path) -> str:
+    """Capability-aware dispatch: route orchestration roles to installed plugin specialist
+    sub-agents (+ surface MCP tools). Empty string if detection is unavailable."""
+    try:
+        from scripts import capabilities_detect
+        return capabilities_detect.build_capabilities_md(project_root)
+    except Exception:
+        return ""
+
+
 def _render_qa_delegator(qa_wiring: dict[str, Any], qa_lead_present: bool) -> str:
     template = (ASSETS / "cross-cutting" / "qa-delegator.template.md").read_text(encoding="utf-8")
     commands = qa_wiring.get("commands", {}) or {}
@@ -371,6 +381,7 @@ def generate_orchestration(
             "migration_writer_row": "| migration-writer | `docs/agents/task-agents/migration-writer.md` | DB migration writing |" if user_choices.get("install_migration_writer", True) else "",
             "persona_table": "(no personas installed; add via `/orchestrate add-persona`)",
             "skill_injection_table": _skill_injection_table(project_root),
+            "capabilities_table": _capabilities_table(project_root),
             "tech_stack": "(detected by bootstrap)",
             "code_style": "(per project)",
             "commands": "(per project)",

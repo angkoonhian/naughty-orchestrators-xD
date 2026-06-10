@@ -192,6 +192,18 @@ def collect(project_root: Path) -> dict[str, Any]:
             budget[k] = {**v, **_asdict(budget.get(k))}
     graph = _asdict(cfg.get("graph_integration")) or {"enabled": False}
 
+    # Installed plugin capabilities the orchestrator can route to (sub-agents + MCP)
+    try:
+        from scripts import capabilities_detect as _cap
+        _agents = _cap.detect_agents(project_root)
+        specialists = [{"role": r, "agent": a or "", "plugin": (_agents.get(a, {}).get("plugin", "") if a else "")}
+                       for r, a in _cap.resolve_specialists(_agents)]
+        mcp = [{"name": n, "use": _cap.MCP_USES.get(n, "")} for n in sorted(_cap.detect_mcp(project_root))]
+        capabilities = {"specialists": specialists, "mcp": mcp,
+                        "agent_count": len(_agents), "matched": sum(1 for s in specialists if s["agent"])}
+    except Exception:
+        capabilities = {"specialists": [], "mcp": [], "agent_count": 0, "matched": 0}
+
     name = "Architecture (generic)"
     if installed:
         prof = _asdict(cfg.get("profile"))
@@ -208,6 +220,7 @@ def collect(project_root: Path) -> dict[str, Any]:
         "loop": [{"step": s, "detail": d} for s, d in DISPATCH_LOOP],
         "budget": budget,
         "graph": graph,
+        "capabilities": capabilities,
         "counts": {
             "leads": sum(1 for n in nodes if n["kind"] == "lead"),
             "critics": sum(1 for n in nodes if n["kind"] in ("critic", "pack")),
@@ -302,6 +315,7 @@ table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border:1px solid v
 <button data-v="hier" class="active">Hierarchy</button>
 <button data-v="loop">Dispatch loop</button>
 <button data-v="budget">Budget engine</button>
+<button data-v="caps">Capabilities</button>
 <button data-v="graph">Graphify</button>
 </nav></header>
 <div class="wrap">
@@ -312,6 +326,7 @@ table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border:1px solid v
  </div>
  <div class="view" id="loop"><div class="pad"><h2>Budget-driven dispatch loop</h2><p class="mut">Click a step. Agent count + depth at each gate is governed by the resolved token budget (see Budget engine).</p><div class="loop" id="loopl"></div></div></div>
  <div class="view" id="budget"><div class="pad" id="budgetp"></div></div>
+ <div class="view" id="caps"><div class="pad" id="capsp"></div></div>
  <div class="view" id="graph"><div class="pad" id="graphp"></div></div>
  <aside class="side" id="side"></aside>
 </div>
@@ -411,6 +426,17 @@ function renderBudget(sel){
   <div class="card mono" style="background:#0d1117">⟦orchestration⟧ impact=${sel==='unleash'?'—':sel} · mode=${sel==='unleash'?'unlimited':'budgeted'} · budget=${FMT(tk)} · spent≈… · agents: 1 understand · 1 pass-1 · n deepen · 1 verify</div>`;
 }
 renderBudget('HIGH');
+
+// ---- capabilities ----
+const C2 = DATA.capabilities || {specialists:[], mcp:[], agent_count:0, matched:0};
+document.getElementById('capsp').innerHTML =
+  `<h2>Capability-aware dispatch <span class="badge ${C2.matched?'on':''}">${C2.matched||0}/${(C2.specialists||[]).length} roles matched · ${C2.agent_count||0} agents · ${(C2.mcp||[]).length} MCP</span></h2>`+
+  `<p class="mut">Orchestration roles routed to your <b>installed plugin specialist sub-agents</b> (dispatched via the Agent tool's <code>agentType</code>), falling back to a generic agent when none is installed — so the orchestrator conducts the specialists you already have.</p>`+
+  `<table><tr><th>Orchestration role</th><th>Specialist <code>agentType</code></th><th>Plugin</th></tr>`+
+  (C2.specialists||[]).map(s=>`<tr><td>${esc(s.role)}</td><td>${s.agent?'<code>'+esc(s.agent)+'</code>':'<span class="mut">(generic)</span>'}</td><td class="mut">${esc(s.plugin||'—')}</td></tr>`).join('')+
+  `</table>`+
+  ((C2.mcp||[]).length?`<div class="card"><div class="k mut">Available MCP tools (use where relevant; connect if not already)</div>${(C2.mcp||[]).map(m=>`<span class="chip">${esc(m.name)}${m.use?' · '+esc(m.use):''}</span>`).join(' ')}</div>`:'')+
+  `<p class="mut">Auto-detected from <code>~/.claude/plugins</code> + <code>~/.claude/agents</code>. Re-run <code>/orchestrate update</code> after installing plugins.</p>`;
 
 // ---- graphify ----
 const G=DATA.graph;const gp=document.getElementById('graphp');

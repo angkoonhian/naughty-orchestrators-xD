@@ -122,7 +122,21 @@ installed project, **overlays that project's live** Leads, platform-pack critics
 validators, adaptive Tier-2 leads, budget settings, and graph integration read from
 `.claude/orchestration.config.yaml`. Four tabs: **Hierarchy** (pan/zoom, click a node for its
 role + defining file + who dispatches it), **Dispatch loop** (steppable), **Budget engine**
-(pick an impact tier → resolved budget + allocation bars + override grammar), **Graphify**.
+(pick an impact tier → resolved budget + allocation bars + override grammar), **Capabilities**
+(installed plugin specialists + MCP tools the orchestrator routes to), **Graphify**.
+
+## Capability-aware dispatch (use what's installed)
+
+Beyond *skills*, the orchestrator discovers and uses the rest of the user's plugin surface
+(`scripts/capabilities_detect.py`, surfaced via `/orchestrate update` and the visualization):
+- **Sub-agents** — scans `~/.claude/plugins/**/agents/*.md` + `~/.claude/agents`, then a
+  **role→specialist catalog** auto-routes orchestration roles to matched installed agents via the
+  Agent tool's `agentType` (DA security deepener → `security-auditor`, architect → `code-architect`,
+  regression → `test-engineer`, …), **falling back to a generic agent** when none is installed.
+- **MCP servers** — scans plugin/user `.mcp.json` and surfaces the tools (e.g. `playwright` for the
+  smoke-test validator, `github` for branch/PR prep, `context7` for docs lookup) so agents leverage
+  what's connected. So the orchestrator conducts the specialists and tools the user already has,
+  instead of always spawning generic agents.
 
 ## Security model
 

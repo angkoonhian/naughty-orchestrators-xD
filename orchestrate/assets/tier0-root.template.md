@@ -102,6 +102,15 @@ Task-type → skill mapping:
 
 {{skill_injection_table}}
 
+### Capability-aware dispatch (use what's installed)
+
+Beyond skills, the orchestrator routes roles to **installed plugin sub-agents** and leverages
+**MCP tools** the user already has — instead of always spawning generic agents. When a role below
+has a matched specialist, dispatch it via the Agent tool's `agentType`; otherwise use a generic
+agent. Refresh with `/orchestrate update` (or `python -m scripts.capabilities_detect`).
+
+{{capabilities_table}}
+
 ## Tech stack
 
 {{tech_stack}}
